@@ -7,7 +7,7 @@
 nba_full_game_schedule(season)
 }
 \arguments{
-\item{season}{string, ex. "2016-2017-regular"}
+\item{season}{string, ex. "2016-2017-regular" | "2017-playoff"}
 }
 \description{
 A list of all games to be played for the entire season.

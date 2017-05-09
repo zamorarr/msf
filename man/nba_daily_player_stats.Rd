@@ -7,7 +7,7 @@
 nba_daily_player_stats(season, date)
 }
 \arguments{
-\item{season}{string, ex. "2016-2017-regular"}
+\item{season}{string, ex. "2016-2017-regular" | "2017-playoff"}
 
 \item{date}{string, ex. "20161104"}
 }

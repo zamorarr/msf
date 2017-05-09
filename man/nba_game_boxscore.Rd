@@ -7,7 +7,7 @@
 nba_game_boxscore(season, gameid)
 }
 \arguments{
-\item{season}{string, ex. "2016-2017-regular"}
+\item{season}{string, ex. "2016-2017-regular" | "2017-playoff"}
 
 \item{gameid}{string, "33941"}
 }
