@@ -4,17 +4,16 @@
 \alias{download_dates}
 \title{Download old data easily}
 \usage{
-download_dates(path, f, season = "2016-2017-regular",
-  start_date = "20161025", end_date = "20161031")
+download_dates(path, f, season, start_date, end_date, fenv = parent.frame())
 }
 \arguments{
 \item{path}{to save files to}
 
 \item{f}{function to iterate over, ex. nba_daily_player_stats}
 
-\item{season}{season to get}
+\item{season}{season to get, ex. "2016-2017-regular"}
 
-\item{start_date, end_date}{date strings}
+\item{start_date, end_date}{date strings, ex "20161025", "20161031"}
 }
 \description{
 Download historical data and write out to file.
@@ -24,3 +23,4 @@ Download historical data and write out to file.
 download_dates("data-raw/daily-dfs/", nba_daily_dfs, "2016-2017-regular", "20161025", "20170412")
 }
 }
+\keyword{internal}
