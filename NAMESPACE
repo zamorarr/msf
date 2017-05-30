@@ -3,6 +3,7 @@
 S3method(print,msf_api)
 export(download_till_yesterday)
 export(download_yesterday)
+export(mlb_active_players)
 export(mlb_daily_dfs)
 export(mlb_daily_player_stats)
 export(mlb_full_game_schedule)
