@@ -20,13 +20,10 @@ msf_api <- function(path, query = NULL) {
 
   # check errors
   if (httr::http_error(resp)) {
-    html <- xml2::read_html(page)
-    error_msg <- xml2::xml_text(xml2::xml_find_all(html, "//body/h1"))
     stop(
       sprintf(
-        "MySportsFeeds API request failed [%s]\n%s\n",
-        htrr::status_code(resp),
-        error_msg
+        "MySportsFeeds API request failed [%s]\n",
+        httr::status_code(resp)
       ),
       call. = FALSE
     )

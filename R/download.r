@@ -18,7 +18,7 @@ download_dates <- function(path, f, season, start_date, end_date, fenv = parent.
   dates <- format(seq(start_date, end_date, by = 1), "%Y%m%d")
 
   for(date in dates) {
-    download_date(path, f, season, date, fenv)
+    download_date(path, f, season, date)
     # wait a bit - rate throttling.
     # The official rate limit is 100 reqs/5 mins. We'll go even slower
     Sys.sleep(5)
