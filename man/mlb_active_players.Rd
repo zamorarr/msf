@@ -4,7 +4,7 @@
 \alias{mlb_active_players}
 \title{List of active players}
 \usage{
-mlb_active_players(season)
+mlb_active_players(season = "current")
 }
 \arguments{
 \item{season}{ex. 2017-regular}

@@ -4,12 +4,12 @@
 \alias{mlb_game_boxscore}
 \title{MLB Game Boxscore}
 \usage{
-mlb_game_boxscore(season, gameid)
+mlb_game_boxscore(gameid, season = "current")
 }
 \arguments{
-\item{season}{string, ex. "2017-regular" | "2017-playoff"}
-
 \item{gameid}{string, "40265"}
+
+\item{season}{string, ex. "2017-regular" | "2017-playoff"}
 }
 \description{
 A boxscore of scoring plays and player stats, for a game.

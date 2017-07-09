@@ -4,7 +4,7 @@
 \alias{mlb_full_game_schedule}
 \title{MLB Full Game Schedule}
 \usage{
-mlb_full_game_schedule(season)
+mlb_full_game_schedule(season = "current")
 }
 \arguments{
 \item{season}{string, ex. "2017-regular" | "2017-playoff"}

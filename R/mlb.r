@@ -4,7 +4,7 @@
 #' @param season string, ex. "2017-regular" | "2017-playoff"
 #' @param date string, ex. "20170508"
 #' @export
-mlb_daily_dfs <- function(season, date) {
+mlb_daily_dfs <- function(date, season = "current") {
   path <- paste0(c("mlb", season, "daily_dfs.json"), collapse = "/")
   query <- list(fordate = date)
   msf_api(path, query)
@@ -16,7 +16,7 @@ mlb_daily_dfs <- function(season, date) {
 #' @param season string, ex. "2017-regular" | "2017-playoff"
 #' @param date string, ex. "20170508"
 #' @export
-mlb_daily_player_stats <- function(season, date) {
+mlb_daily_player_stats <- function(date, season = "current") {
   path <- paste0(c("mlb", season, "daily_player_stats.json"), collapse = "/")
   query <- list(fordate = date)
   msf_api(path, query)
@@ -27,7 +27,7 @@ mlb_daily_player_stats <- function(season, date) {
 #' A list of all games to be played for the entire season.
 #' @param season string, ex. "2017-regular" | "2017-playoff"
 #' @export
-mlb_full_game_schedule <- function(season) {
+mlb_full_game_schedule <- function(season = "current") {
   path <- paste0(c("mlb", season, "full_game_schedule.json"), collapse = "/")
   msf_api(path)
 }
@@ -38,7 +38,7 @@ mlb_full_game_schedule <- function(season) {
 #' @param season string, ex. "2017-regular" | "2017-playoff"
 #' @param gameid string, "40265"
 #' @export
-mlb_game_boxscore <- function(season, gameid) {
+mlb_game_boxscore <- function(gameid, season = "current") {
   path <- paste0(c("mlb", season, "game_boxscore.json"), collapse = "/")
   query <- list(gameid = gameid)
   msf_api(path, query)
@@ -58,7 +58,7 @@ mlb_game_starting_lineup <- function(gameid, season = "current") {
 #' List of active players
 #' @param season ex. 2017-regular
 #' @export
-mlb_active_players <- function(season) {
+mlb_active_players <- function(season = "current") {
   path <- paste0(c("mlb", season, "active_players.json"), collapse = "/")
   msf_api(path)
 }

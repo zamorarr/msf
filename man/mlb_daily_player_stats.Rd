@@ -4,12 +4,12 @@
 \alias{mlb_daily_player_stats}
 \title{MLB Player Stats}
 \usage{
-mlb_daily_player_stats(season, date)
+mlb_daily_player_stats(date, season = "current")
 }
 \arguments{
-\item{season}{string, ex. "2017-regular" | "2017-playoff"}
-
 \item{date}{string, ex. "20170508"}
+
+\item{season}{string, ex. "2017-regular" | "2017-playoff"}
 }
 \description{
 A list of player stats totals for those players who particpated in games on a given day.

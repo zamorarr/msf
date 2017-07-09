@@ -4,12 +4,12 @@
 \alias{mlb_daily_dfs}
 \title{MLB Daily Fantasy Stats}
 \usage{
-mlb_daily_dfs(season, date)
+mlb_daily_dfs(date, season = "current")
 }
 \arguments{
-\item{season}{string, ex. "2017-regular" | "2017-playoff"}
-
 \item{date}{string, ex. "20170508"}
+
+\item{season}{string, ex. "2017-regular" | "2017-playoff"}
 }
 \description{
 A list of players, along with their DFS salaries and actual fantasy points.
