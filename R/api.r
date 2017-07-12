@@ -4,8 +4,8 @@
 #' @param query query parameters
 msf_api <- function(path, query = NULL) {
   # url
-  baseurl <- "https://www.mysportsfeeds.com"
-  path <- paste0("api/feed/pull/", path)
+  baseurl <- "https://api.mysportsfeeds.com"
+  path <- paste0("v1.1/pull/", path)
   url <- httr::modify_url(baseurl, path = path, query = query)
 
   # authentication
