@@ -77,6 +77,7 @@ mlb_player_gamelogs <- function(season = "current") {
 #' Latest Updates
 #'
 #' This feed lists the last updated date/time for each available feed.
+#' @export
 mlb_latest_updates <- function(season = "current") {
   path <- paste0(c("mlb", season, "latest_updates.json"), collapse = "/")
   msf_api(path)
