@@ -38,6 +38,16 @@ mlb_latest_updates <- function(season = "current") {
   msf_api(path)
 }
 
+#' Cumulative Player Stats
+#'
+#' A list of player stats totals for all roster players, summarized by their latest team.
+#'
+#' @param season ex. 2017-regular
+#' @export
+mlb_cumulative_player_stats <- function(season = "current") {
+  path <- paste0(c("mlb", season, "cumulative_player_stats.json"), collapse = "/")
+  msf_api(path)
+}
 
 
 
