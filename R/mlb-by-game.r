@@ -10,6 +10,17 @@ mlb_game_boxscore <- function(gameid, season = "current") {
   msf_api(path, query)
 }
 
+#' MLB Game Play-by-Play
+#'
+#' All plays that have occurred for a game.
+#' @param season string, ex. "2017-regular" | "2017-playoff"
+#' @param gameid string, "40265"
+#' @export
+mlb_game_pbp <- function(gameid, season = "current") {
+  path <- paste0(c("mlb", season, "game_playbyplay.json"), collapse = "/")
+  query <- list(gameid = gameid)
+  msf_api(path, query)
+}
 
 #' Download starting mlb starting lineups
 #'
