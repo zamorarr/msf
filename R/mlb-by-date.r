@@ -34,3 +34,16 @@ mlb_daily_game_schedule <- function(date = format(Sys.Date(), "%Y%m%d"),
   query <- list(fordate = date)
   msf_api(path, query)
 }
+
+#' Scoreboard
+#'
+#' Scores and status for all games on a given day.
+#' @param season ex. 2017-regular | current
+#' @param date date format in Ymd such as 20170601
+#' @export
+mlb_scoreboard <- function(date = format(Sys.Date(), "%Y%m%d"),
+                           season = "current") {
+  path <- paste0(c("mlb", season, "scoreboard.json"), collapse = "/")
+  query <- list(fordate = date)
+  msf_api(path, query)
+}
