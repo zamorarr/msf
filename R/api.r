@@ -35,12 +35,12 @@ msf_api <- function(path, query = NULL) {
   }
 
   # parse content
-  parsed <- jsonlite::fromJSON(page, simplifyVector = FALSE)
+  json <- jsonlite::fromJSON(page, simplifyVector = FALSE)
 
   # return S3 object
   structure(
     list(
-      content = parsed,
+      json = json,
       path = path,
       response = resp
     ),
@@ -50,7 +50,7 @@ msf_api <- function(path, query = NULL) {
 
 #' @export
 print.msf_api <- function(x, ...) {
-  cat("<MySportsFeeds ", x$path, ">\n", sep = "")
-  str(x$content,2)
+  cat("<MySportsFeeds ", x[["path"]], ">\n", sep = "")
+  str(x[["json"]],2)
   invisible(x)
 }
