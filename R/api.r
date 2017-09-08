@@ -40,7 +40,7 @@ msf_api <- function(path, query = NULL) {
   # return S3 object
   structure(
     list(
-      json = json,
+      content = json,
       path = path,
       response = resp
     ),
@@ -51,6 +51,6 @@ msf_api <- function(path, query = NULL) {
 #' @export
 print.msf_api <- function(x, ...) {
   cat("<MySportsFeeds ", x[["path"]], ">\n", sep = "")
-  str(x[["json"]],2)
+  str(x[["content"]],2)
   invisible(x)
 }
