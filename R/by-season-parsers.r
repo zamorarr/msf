@@ -25,3 +25,34 @@ parse_active_players <- function(json) {
   tibble::tibble(id = id, team_id = team_id, fname = fname, lname = lname,
                  team = team, position = position, is_rookie = is_rookie)
 }
+
+#' Parse cumulative stats
+#'
+#' @param json content from response
+#' @param site draftkings or fanduel
+#' @export
+#' @examples
+#' \dontrun{
+#' resp <- mlb_cumulative_player_stats()
+#' stats <- parse_cumulative_stats(resp$content)
+#' }
+parse_cumulative_stats <- function(json) {
+  playerstats <- json[["cumulativeplayerstats"]][["playerstatsentry"]]
+
+  # player data
+  player_df <- purrr::map_df(playerstats, "player")
+
+  # team data
+  team_df <- purrr::map_df(playerstats, "team")
+  team_df <- dplyr::rename(team_df, "TeamID" = "ID")
+
+  # stats
+  stats <- purrr::map(playerstats, "stats")
+  stats_df <- purrr::map_df(stats, ~ purrr::map(.x, "#text"))
+  stats_df[] <- purrr::map(stats_df, as.double)
+
+  df <- dplyr::bind_cols(player_df, team_df, stats_df)
+  colnames(df) <- tolower(colnames(df))
+
+  df
+}
