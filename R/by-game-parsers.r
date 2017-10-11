@@ -73,6 +73,67 @@ mlb_batting_order <- function(id, position, team_id) {
   df[c("id", "lineup_order", "team_id")]
 }
 
+#' Parse box scores
+#'
+#' @param json content from response
+#' @export
+#' @examples
+#' \dontrun{
+#' resp <- mysportsfeeds::nfl_game_boxscore("30904", "2016-2017-regular")
+#' parse_boxscore(resp$content)
+#' }
+parse_boxscore <- function(json) {
+  # game data
+  game <- json[["gameboxscore"]][["game"]]
+  date <- game[["date"]][[1]]
+  time <- game[["time"]][[1]]
+
+  # player/team data
+  away <- json[["gameboxscore"]][["awayTeam"]][["awayPlayers"]][["playerEntry"]]
+  home <- json[["gameboxscore"]][["homeTeam"]][["homePlayers"]][["playerEntry"]]
+  away_id <- game[["awayTeam"]][["ID"]]
+  home_id <- game[["homeTeam"]][["ID"]]
+
+  away_df <- parse_boxscore_players(away, away_id)
+  home_df <- parse_boxscore_players(home, home_id)
+
+  df <- dplyr::bind_rows(away_df, home_df)
+  tidy_boxscore(df)
+}
+
+parse_boxscore_players <- function(players, team_id) {
+  # players
+  player_ids <- purrr::map_chr(players, c("player", "ID"))
+  player_pos <- purrr::map_chr(players, c("player", "Position"))
+
+  # stats
+  stats <- purrr::map(players, "stats")
+
+  tibble::tibble(team_id = team_id, player = player_ids, position = player_pos,
+                 stats = stats)
+}
+
+tidy_boxscore <- function(df) {
+  # extract and remove stats column. it is nested and needs to be parsed
+  stats <- df[["stats"]]
+  df[["stats"]] <- NULL
+
+  # unnest stats column
+  stats_df <- purrr::map_dfr(stats, unnest_stats)
+
+  # merge unnested stats back into data frame
+  dplyr::bind_cols(df, stats_df)
+}
+
+unnest_stats <- function(x) {
+  s <- purrr::map_chr(x, "#text")
+  cnames <- names(s)
+
+  data <- as.list(as.double(s))
+  names(data) <- cnames
+  tibble::as_tibble(data)
+}
+
 
 
 
