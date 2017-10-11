@@ -26,13 +26,25 @@ test_that("mlb boxscore parser works", {
 })
 
 test_that("nfl boxscore parser works", {
-  # mlb data
+  # nfl data
   j <- mysportsfeeds::read_msf("nfl-boxscore.json")
 
   actual <- parse_boxscore(j)
   col_types <- vapply(actual[4:139], class, FUN.VALUE = character(1L))
 
   expect_equal(nrow(actual), 87L)
+  expect_equal(ncol(actual), 139L)
+  expect_true(all(col_types == "numeric"))
+})
+
+test_that("nfl boxscore parser skips players when they have NULL stats", {
+  # nfl data
+  j <- mysportsfeeds::read_msf("nfl-boxscore-with-null-stats.json")
+
+  actual <- parse_boxscore(j)
+  col_types <- vapply(actual[4:139], class, FUN.VALUE = character(1L))
+
+  expect_equal(nrow(actual), 88L) # originally had 89
   expect_equal(ncol(actual), 139L)
   expect_true(all(col_types == "numeric"))
 })

@@ -98,6 +98,11 @@ parse_boxscore <- function(json) {
   home_df <- parse_boxscore_players(home, home_id)
 
   df <- dplyr::bind_rows(away_df, home_df)
+
+  # remove players who have NULL stats
+  todrop <- which(purrr::map_lgl(df[["stats"]], is.null))
+  df <- df[-todrop,]
+
   tidy_boxscore(df)
 }
 
@@ -107,7 +112,7 @@ parse_boxscore_players <- function(players, team_id) {
   player_pos <- purrr::map_chr(players, c("player", "Position"))
 
   # stats
-  stats <- purrr::map(players, "stats")
+  stats <- purrr::map(players, "stats", .default = NULL)
 
   tibble::tibble(team_id = team_id, player = player_ids, position = player_pos,
                  stats = stats)
