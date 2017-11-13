@@ -78,7 +78,9 @@ parse_player_injuries <- function(json) {
 
   # injury
   injury <- purrr::map_chr(playerinjuries, "injury")
+  injury_split <- stringr::str_match(injury, "(.*) \\((.*)\\)")
 
-  #df <- dplyr::bind_cols(player_df, team_df, stats_df)
-  tibble::tibble(id = player_df[["ID"]], team_id = team_df[["ID"]], injury = injury)
+  # return data frame
+  tibble::tibble(id = player_df[["ID"]], team_id = team_df[["ID"]],
+                 injury = injury_split[,2], status = injury_split[,3])
 }
