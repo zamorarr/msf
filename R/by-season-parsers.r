@@ -56,3 +56,29 @@ parse_cumulative_stats <- function(json) {
 
   df
 }
+
+#' Parse player injuries
+#'
+#' @param json content from response
+#' @export
+#' @examples
+#' \dontrun{
+#' resp <- player_injuries("nba")
+#' injuries <- parse_player_injuries(resp$content)
+#' }
+parse_player_injuries <- function(json) {
+  playerinjuries <- json[["playerinjuries"]][["playerentry"]]
+
+  # player data
+  player_df <- purrr::map_df(playerinjuries, "player")
+  #print(player_df)
+
+  # team data
+  team_df <- purrr::map_df(playerinjuries, "team")
+
+  # injury
+  injury <- purrr::map_chr(playerinjuries, "injury")
+
+  #df <- dplyr::bind_cols(player_df, team_df, stats_df)
+  tibble::tibble(id = player_df[["ID"]], team_id = team_df[["ID"]], injury = injury)
+}

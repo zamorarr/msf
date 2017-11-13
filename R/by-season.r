@@ -46,3 +46,13 @@ latest_updates <- function(sport, season = "current") {
 cumulative_player_stats <- function(sport, season = "current") {
   msf_by_season("cumulative_player_stats.json", sport, season)
 }
+
+
+#' Player Injuries
+#'
+#' A list of all currently injured players.
+#' @inheritParams msf_by_season
+#' @export
+player_injuries <- function(sport, season = "current") {
+  msf_by_season("player_injuries.json", sport, season)
+}

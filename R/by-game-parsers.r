@@ -62,10 +62,14 @@ mlb_batting_order <- function(id, position, team_id) {
 
   df <- tidyr::spread(df, col_type, position)
 
+
+  # add lineup_order column if not found
+  if (!("lineup_order" %in% colnames(df))) df[["lineup_order"]] <- NA_character_
+
   # batting orders are in the form BO1, BO2, BO3, etc..
+  # stopifnot(length(df[["lineup_order"]]) == 9)
   df[["lineup_order"]] <- stringr::str_extract(df[["lineup_order"]], "[0-9]")
   df[["lineup_order"]] <- as.integer(df[["lineup_order"]])
-  #stopifnot(length(df[["lineup_order"]]) == 9)
 
   # add team id
   df[["team_id"]] <- team_id
@@ -100,8 +104,8 @@ parse_boxscore <- function(json) {
   df <- dplyr::bind_rows(away_df, home_df)
 
   # remove players who have NULL stats
-  todrop <- which(purrr::map_lgl(df[["stats"]], is.null))
-  df <- df[-todrop,]
+  tokeep <- which(purrr::map_lgl(df[["stats"]], ~ !is.null(.x)))
+  df <- df[tokeep,]
 
   tidy_boxscore(df)
 }

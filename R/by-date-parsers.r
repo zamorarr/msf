@@ -44,7 +44,8 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
   site <- match.arg(site)
   sites <- tolower(purrr::map_chr(dfs, "dfsType"))
   site_index <- which(sites == site)
-  stopifnot(length(site_index) == 1L)
+  #stopifnot(length(site_index) == 1L)
+  if (length(site_index) != 1L) return(NA)
 
   # dfs data
   dfs <- dfs[[site_index]][["dfsRows"]]
@@ -54,7 +55,7 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
   fname <- purrr::map_chr(dfs, c("player", "FirstName"), .null = NA)
   lname <- purrr::map_chr(dfs, c("player", "LastName"), .null = NA)
   position <- purrr::map_chr(dfs, c("player", "Position"), .null = NA)
-  dfs_id <- purrr::map_chr(dfs, c("player", "dfsSourceId"), .null = NA)
+  #dfs_id <- purrr::map_chr(dfs, c("player", "dfsSourceId"), .null = NA)
 
   # team
   team_id <- purrr::map_chr(dfs, c("team", "ID"))
@@ -71,6 +72,6 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
 
   tibble::tibble(id = id, team_id = team_id, game_id = game_id,
                  fname = fname, lname = lname, team = team, position = position,
-                 salary = salary, fpts = fpts, dfs_id = dfs_id)
+                 salary = salary, fpts = fpts)#, dfs_id = dfs_id)
 }
 

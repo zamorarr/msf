@@ -22,16 +22,6 @@ nba_daily_player_stats <- function(season, date) {
   msf_api(path, query)
 }
 
-#' NBA Full Game Schedule
-#'
-#' A list of all games to be played for the entire season.
-#' @param season string, ex. "2016-2017-regular" | "2017-playoff"
-#' @export
-nba_full_game_schedule <- function(season) {
-  path <- paste0(c("nba", season, "full_game_schedule.json"), collapse = "/")
-  msf_api(path)
-}
-
 #' NBA Game Boxscore
 #'
 #' A boxscore of scoring plays and player stats, for a game.
