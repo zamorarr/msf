@@ -14,6 +14,7 @@ msf_by_date <- function(req, sport, date, season) {
 #'
 #' A list of players, along with their DFS salaries and actual fantasy points.
 #' @inheritParams msf_by_date
+#' @export
 daily_dfs <- function(sport, date = Sys.Date(), season = "current") {
   msf_by_date("daily_dfs.json", sport, date, season)
 }
@@ -22,6 +23,7 @@ daily_dfs <- function(sport, date = Sys.Date(), season = "current") {
 #'
 #' A list of player stats totals for those players who particpated in games on a given day.
 #' @inheritParams msf_by_date
+#' @export
 daily_player_stats <- function(sport, date = Sys.Date(), season = "current") {
   msf_by_date("daily_player_stats.json", sport, date, season)
 }
@@ -30,6 +32,7 @@ daily_player_stats <- function(sport, date = Sys.Date(), season = "current") {
 #'
 #' The daily game schedule
 #' @inheritParams msf_by_date
+#' @export
 daily_game_schedule <- function(sport, date = Sys.Date(), season = "current") {
   msf_by_date("daily_game_schedule.json", sport, date, season)
 }
@@ -38,6 +41,7 @@ daily_game_schedule <- function(sport, date = Sys.Date(), season = "current") {
 #'
 #' Scores and status for all games on a given day.
 #' @inheritParams msf_by_date
+#' @export
 scoreboard <- function(sport, date = Sys.Date(), season = "current") {
   msf_by_date("scoreboard.json", sport, date, season)
 }

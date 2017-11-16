@@ -34,29 +34,29 @@ download_date <- function(path, f, season, date, fenv = parent.frame()) {
   filepath <- file.path(path, filename)
 
   # get data
-  resp <- f(season, date)
+  resp <- f(date, season)
 
   # write data to filename
   jsonlite::write_json(resp$content, filepath)
 }
 
-#' @export
+#' @keywords internal
 download_yesterday <- function(path, f, season) {
   yesterday <- format(Sys.Date() - 1, "%Y%m%d")
   download_date(path, f, season, yesterday)
 }
 
-#' @export
+#' @keywords internal
 download_till_yesterday <- function(path, f, season, start_date) {
   yesterday <- format(Sys.Date() - 1, "%Y%m%d")
   download_dates(path, f, season, start_date, yesterday)
 }
 
-#' @export
-download_games <- function(path, f, games, season = "current", fenv = parent.frame()) {
+#' @keywords internal
+download_games <- function(games, path, f, season = "current", fenv = parent.frame()) {
 
   for(game in games) {
-    download_game(path, f, game, season)
+    download_game(game, path, f, season)
     # wait a bit - rate throttling.
     # The official rate limit is 100 reqs/5 mins. We'll go even slower
     Sys.sleep(5)
@@ -66,9 +66,10 @@ download_games <- function(path, f, games, season = "current", fenv = parent.fra
 }
 
 #' @keywords internal
-download_game <- function(path, f, gameid, season = "current", fenv = parent.frame()) {
+download_game <- function(gameid, path, f, season = "current", fenv = parent.frame()) {
   # create file path
-  filename <- paste0(gameid, "-", deparse(substitute(f, fenv)), ".json")
+  funcname <- deparse(substitute(f, fenv))
+  filename <- paste0(gameid, "-", funcname, ".json")
   filepath <- file.path(path, filename)
 
   # get data
@@ -76,4 +77,5 @@ download_game <- function(path, f, gameid, season = "current", fenv = parent.fra
 
   # write data to filename
   jsonlite::write_json(resp$content, filepath)
+  #print(filepath)
 }

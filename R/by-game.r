@@ -14,6 +14,7 @@ msf_by_game <- function(req, sport, gameid, season) {
 #'
 #' A boxscore of scoring plays and player stats, for a game.
 #' @inheritParams msf_by_game
+#' @export
 game_boxscore <- function(sport, gameid, season = "current") {
   msf_by_game("game_boxscore.json", sport, gameid, season)
 }
@@ -22,6 +23,7 @@ game_boxscore <- function(sport, gameid, season = "current") {
 #'
 #' All plays that have occurred for a game.
 #' @inheritParams msf_by_game
+#' @export
 game_pbp <- function(sport, gameid, season = "current") {
   msf_by_game("game_playbyplay.json", sport, gameid, season)
 }
@@ -29,6 +31,7 @@ game_pbp <- function(sport, gameid, season = "current") {
 #' Download starting lineups
 #'
 #' @inheritParams msf_by_game
+#' @export
 game_starting_lineup <- function(sport, gameid, season = "current") {
   msf_by_game("game_startinglineup.json", sport, gameid, season)
 }
