@@ -143,6 +143,70 @@ unnest_stats <- function(x) {
   tibble::as_tibble(data)
 }
 
+#' Parse Play by Play Data
+#' @param json list of data
+#' @param sport sport
+#' @export
+parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
+  sport = match.arg(sport)
+
+  # get plays or at-bats
+  if (is.na(sport)) {
+    stop("Please provide a sport argument.")
+  }
+
+  if (sport == "mlb") {
+    plays <- json[["gameplaybyplay"]][["atBats"]][["atBat"]]
+  } else {
+    plays <- json[["gameplaybyplay"]][["plays"]][["play"]]
+  }
+
+  # parse events
+  if (sport == "nba") {
+    quarter <- purrr::map_chr(plays, "quarter")
+    time <- purrr::map_chr(plays, "time")
+    event <- purrr::map_chr(plays, ~ names(.x)[3])
+    event_data <- purrr::map(plays, 3)
+    tibble::tibble(quarter = quarter, time = time, event = event, data = event_data)
+  } else if (sport == "nhl") {
+    period <- purrr::map_chr(plays, "period")
+    time <- purrr::map_chr(plays, "time")
+    event <- purrr::map_chr(plays, ~ names(.x)[3])
+    event_data <- purrr::map(plays, 3)
+    tibble::tibble(period = period, time = time, event = event, data = event_data)
+  } else if (sport == "nfl") {
+    quarter <- purrr::map_chr(plays, "quarter")
+    time <- purrr::map_chr(plays, "time")
+    event <- purrr::map_chr(plays, ~ tail(names(.x),1))
+    event_data <- purrr::map(plays, tail, 1)
+    tibble::tibble(quarter = quarter, time = time, event = event, data = event_data)
+  } else if (sport == "mlb") {
+    inning <- purrr::map_chr(plays, "inning")
+    inning_half <- purrr::map_chr(plays, "inningHalf")
+    batting_team <- purrr::map_chr(plays, c("battingTeam", "ID"))
+
+    atbat_id <- seq_along(inning)
+    event_data <- purrr::map(plays, "atBatPlay")
+    event_data <- purrr::map(event_data, parse_mlb_event)
+
+    results <- tibble::tibble(
+      inning = inning, inning_half = inning_half, batting_team = batting_team,
+      atbat_id = atbat_id, data = event_data)
+
+    tidyr::unnest(results, data)
+  }
+
+}
+
+#' Parse mlb events
+#' @param event a nested json event
+#' @keywords internal
+parse_mlb_event <- function(event) {
+  event_type <- purrr::map_chr(event, ~ names(head(.x)))
+  event_data <- purrr::map(event, 1)
+  play_id <- seq_along(event_type)
+  tibble::tibble(play_id, event = event_type, data = event_data)
+}
 
 
 
