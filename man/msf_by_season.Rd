@@ -2,17 +2,61 @@
 % Please edit documentation in R/by-season.r
 \name{msf_by_season}
 \alias{msf_by_season}
+\alias{active_players}
+\alias{cumulative_player_stats}
+\alias{full_game_schedule}
+\alias{latest_updates}
+\alias{player_gamelogs}
+\alias{player_injuries}
 \title{MySportsFeeds API calls by season}
 \usage{
-msf_by_season(req, sport, season)
+msf_by_season(feed, sport, season = "current", delay = 5)
+
+active_players(sport, ...)
+
+cumulative_player_stats(sport, ...)
+
+full_game_schedule(sport, ...)
+
+latest_updates(sport, ...)
+
+player_gamelogs(sport, ...)
+
+player_injuries(sport, ...)
 }
 \arguments{
-\item{req}{data to request}
+\item{feed}{feed to request}
 
 \item{sport}{mlb | nfl | nba | etc..}
 
 \item{season}{ex. 2017-regular | current}
+
+\item{delay}{number of seconds between queries}
+
+\item{...}{additional parameters passed to \code{msf_by_season} such as season}
 }
 \description{
-MySportsFeeds API calls by season
+If you provide multiple seasons it will execute with a delay between each query.
+This is to ensure you obey limit rates but you are free to lower the parameter if you don't
+think your queries will reach the throttle limits.
+}
+\section{Functions}{
+\itemize{
+\item \code{active_players}: List of active players
+
+\item \code{cumulative_player_stats}: A list of player stats totals for all roster players, summarized by their latest team.
+
+\item \code{full_game_schedule}: A list of all games to be played for the entire season.
+
+\item \code{latest_updates}: This feed lists the last updated date/time for each available feed.
+
+\item \code{player_gamelogs}: Game logs for one or more players
+
+\item \code{player_injuries}: A list of all currently injured players.
+}}
+
+\examples{
+\dontrun{
+resp <- full_game_schedule("nfl", c("latest", "2016-2017-regular"), delay = 3)
+}
 }

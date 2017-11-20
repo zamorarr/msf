@@ -2,19 +2,53 @@
 % Please edit documentation in R/by-date.r
 \name{msf_by_date}
 \alias{msf_by_date}
+\alias{daily_dfs}
+\alias{daily_player_stats}
+\alias{daily_game_schedule}
+\alias{scoreboard}
 \title{MySportsFeeds API calls by date}
 \usage{
-msf_by_date(req, sport, date, season)
+msf_by_date(feed, sport, date = Sys.Date(), season = "current", delay = 5)
+
+daily_dfs(sport, ...)
+
+daily_player_stats(sport, ...)
+
+daily_game_schedule(sport, ...)
+
+scoreboard(sport, ...)
 }
 \arguments{
-\item{req}{data to request}
+\item{feed}{feed to request}
 
 \item{sport}{mlb | nfl | nba | etc..}
 
 \item{date}{date, ex. as.Date("2017-05-08")}
 
 \item{season}{ex. 2017-regular | current}
+
+\item{delay}{number of seconds between queries}
+
+\item{...}{additional parameters passed to \code{msf_by_date} such as date or season}
 }
 \description{
-MySportsFeeds API calls by date
+If you provide multiple dates it will execute with a delay between each query.
+This is to ensure you obey limit rates but you are free to lower the parameter if you don't
+think your queries will reach the throttle limits.
+}
+\section{Functions}{
+\itemize{
+\item \code{daily_dfs}: A list of players, along with their DFS salaries and actual fantasy points.
+
+\item \code{daily_player_stats}: A list of player stats totals for those players who particpated in games on a given day.
+
+\item \code{daily_game_schedule}: The daily game schedule
+
+\item \code{scoreboard}: Scores and status for all games on a given day.
+}}
+
+\examples{
+\dontrun{
+resp <- daily_dfs("nba", c(Sys.Date(), Sys.Date() - 1), delay = 3)
+}
 }

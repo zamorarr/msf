@@ -2,19 +2,50 @@
 % Please edit documentation in R/by-game.r
 \name{msf_by_game}
 \alias{msf_by_game}
+\alias{game_boxscore}
+\alias{game_pbp}
+\alias{game_starting_lineup}
 \title{MySportsFeeds API calls by game}
 \usage{
-msf_by_game(req, sport, gameid, season)
+msf_by_game(feed, sport, gameid, season = "current", delay = 5)
+
+game_boxscore(sport, gameid, ...)
+
+game_pbp(sport, gameid, ...)
+
+game_starting_lineup(sport, gameid, ...)
 }
 \arguments{
-\item{req}{data to request}
+\item{feed}{feed to request}
 
 \item{sport}{mlb | nfl | nba | etc..}
 
-\item{gameid}{string, "40265"}
+\item{gameid}{strings, "40265" or c("40265", "11111") or "20171015-SF-WAS"}
 
 \item{season}{string, ex. "2017-regular" | "2017-playoff"}
+
+\item{delay}{number of seconds between queries}
+
+\item{...}{additional parameters passed to \code{msf_by_game} such as season or delay}
 }
 \description{
-MySportsFeeds API calls by game
+If you provide multiple gameids it will execute with a delay between each query.
+This is to ensure you obey limit rates but you are free to lower the parameter if you don't
+think your queries will reach the throttle limits.
+}
+\section{Functions}{
+\itemize{
+\item \code{game_boxscore}: A boxscore of scoring plays and player stats, for a game.
+
+\item \code{game_pbp}: All plays that have occurred for a game.
+
+\item \code{game_starting_lineup}: Expected and Actual starting lineup for both teams of a game.
+}}
+
+\examples{
+\dontrun{
+resp <- game_starting_lineup("nfl", "20171015-SF-WAS")
+resp <- game_boxscore("nba", c("20171026-BOS-MIL", "20171109-LAL-WAS"), delay = 3)
+resp <- game_pbp("nhl", "20161215-FLO-WPJ", season = "2016-2017-regular")
+}
 }
