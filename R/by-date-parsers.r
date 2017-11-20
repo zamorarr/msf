@@ -1,3 +1,30 @@
+#' Parse Current Season
+#'
+#' @param json list of json content
+#' @examples
+#' \dontrun{
+#' resp <- current_season("nba")
+#' parse_current_season(resp$content)
+#' }
+parse_current_season <- function(json) {
+  season <- json[["currentseason"]][["season"]][[1]]
+
+  # details
+  details <- tibble::as_tibble(season[["details"]])
+
+  # player stats
+  player_stats <- season[["supportedPlayerStats"]][[1]]
+  player_df <- tibble::as_tibble(purrr::simplify_all(purrr::transpose(player_stats)))
+
+  # team stats
+  team_stats <- season[["supportedTeamStats"]][[1]]
+  team_df <- tibble::as_tibble(purrr::simplify_all(purrr::transpose(team_stats)))
+
+  dplyr::mutate(details,
+                supportedPlayerStats = list(player_df),
+                supportedTeamStats = list(team_df))
+}
+
 #' Parse json of game schedule
 #'
 #' @param json content from response

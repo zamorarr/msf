@@ -1,4 +1,4 @@
 library(testthat)
-library(mysportsfeeds)
+library(msf)
 
-test_check("mysportsfeeds")
+test_check("msf")
