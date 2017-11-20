@@ -2,19 +2,25 @@
 % Please edit documentation in R/by-date.r
 \name{msf_by_date}
 \alias{msf_by_date}
+\alias{current_season}
 \alias{daily_dfs}
-\alias{daily_player_stats}
 \alias{daily_game_schedule}
+\alias{daily_player_stats}
+\alias{roster_players}
 \alias{scoreboard}
 \title{MySportsFeeds API calls by date}
 \usage{
-msf_by_date(feed, sport, date = Sys.Date(), season = "current", delay = 5)
+msf_by_date(feed, sport, date = Sys.Date(), season = "current", delay = 1)
+
+current_season(sport, ...)
 
 daily_dfs(sport, ...)
 
+daily_game_schedule(sport, ...)
+
 daily_player_stats(sport, ...)
 
-daily_game_schedule(sport, ...)
+roster_players(sport, ...)
 
 scoreboard(sport, ...)
 }
@@ -38,11 +44,15 @@ think your queries will reach the throttle limits.
 }
 \section{Functions}{
 \itemize{
+\item \code{current_season}: The current season for a given date (or today), along with supported team/player stats.
+
 \item \code{daily_dfs}: A list of players, along with their DFS salaries and actual fantasy points.
+
+\item \code{daily_game_schedule}: The daily game schedule
 
 \item \code{daily_player_stats}: A list of player stats totals for those players who particpated in games on a given day.
 
-\item \code{daily_game_schedule}: The daily game schedule
+\item \code{roster_players}: A list of players, along with details, currently assigned to a team's roster.
 
 \item \code{scoreboard}: Scores and status for all games on a given day.
 }}
@@ -50,5 +60,7 @@ think your queries will reach the throttle limits.
 \examples{
 \dontrun{
 resp <- daily_dfs("nba", c(Sys.Date(), Sys.Date() - 1), delay = 3)
+resp <- daily_game_schedule("nhl")
+resp <- daily_player_stats("mlb", as.Date("2017-06-06"), season = "2017-regular")
 }
 }
