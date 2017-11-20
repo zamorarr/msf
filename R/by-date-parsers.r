@@ -25,16 +25,63 @@ parse_current_season <- function(json) {
                 supportedTeamStats = list(team_df))
 }
 
-#' Parse json of game schedule
+#' Parse fantasy salaries for today's games
 #'
 #' @param json content from response
+#' @param site draftkings or fanduel
 #' @export
 #' @examples
 #' \dontrun{
-#' resp <- mysportsfeeds::mlb_daily_game_schedule()
-#' games <- parse_daily_game_schedule(resp$json)
+#' resp <- daily_dfs("nba")
+#' parse_daily_dfs(resp$content)
 #' }
-parse_game_schedule <- function(json, nm = "dailygameschedule") {
+parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
+  dfs <- json[["dailydfs"]][["dfsEntries"]]
+  if (is.null(dfs)) return(NULL)
+
+  # get site
+  site <- match.arg(site)
+  sites <- tolower(purrr::map_chr(dfs, "dfsType"))
+  site_index <- which(sites == site)
+  if (length(site_index) != 1L) return(NA)
+
+  # dfs data
+  dfs <- dfs[[site_index]][["dfsRows"]]
+
+  # player
+  players <- purrr::map(dfs, "player")
+  df_players <- parse_players(players)
+  df_players$dfs_id <- purrr::map_chr(players, "dfsSourceId", .null = NA)
+
+  # team
+  teams <- purrr::map(dfs, "team")
+  df_teams <- parse_teams(teams)
+
+  # game
+  game_id <- purrr::map_chr(dfs, c("game", "id"), .null = NA)
+
+  # salary
+  salary <- as.integer(purrr::map_chr(dfs, "salary" ))
+
+  # fantasy points
+  fpts <- as.double(purrr::map_chr(dfs, "fantasyPoints", .null = NA))
+
+  result <- dplyr::bind_cols(df_players, df_teams)
+  result[c("game_id", "salary", "fpts")] <- list(game_id, salary, fpts)
+
+  result
+}
+
+#' Parse game schedules
+#'
+#' @param json content from response
+#' @param nm "dailygameschedule" or "fullgameschedule"
+#' @examples
+#' \dontrun{
+#' resp <- daily_game_schedule("nfl")
+#' parse_daily_game_schedule(resp$content)
+#' }
+parse_game_schedule <- function(json, nm) {
   games <- json[[nm]][["gameentry"]]
 
   # metadata
@@ -47,58 +94,47 @@ parse_game_schedule <- function(json, nm = "dailygameschedule") {
   dt <- as.POSIXct(paste(date, time), tz = "America/New_York", format = "%Y-%m-%d %I:%M%p")
 
   # teams
-  away_id <- purrr::map_chr(games, c("awayTeam", "ID"))
-  home_id <- purrr::map_chr(games, c("homeTeam", "ID"))
+  away <- purrr::map(games, "awayTeam")
+  df_away <- parse_teams(away)
+  colnames(df_away) <- c("away_id", "away_team")
 
-  tibble::tibble(game_id = game_id, away_id, home_id, dt = dt, location = location)
+  home <- purrr::map(games, "homeTeam")
+  df_home <- parse_teams(home)
+  colnames(df_home) <- c("home_id", "home_team")
+
+  result <- tibble::tibble(game_id = game_id, dt = dt, location = location)
+  dplyr::bind_cols(result, df_away, df_home)
 }
 
-#' Parse fantasy salaries for today's games
+#' @describeIn parse_game_schedule Parse daily game schedule
+#' @export
+parse_daily_game_schedule <- function(json) {
+  parse_game_schedule(json, "dailygameschedule")
+}
+
+#' Parse player stats
 #'
 #' @param json content from response
-#' @param site draftkings or fanduel
-#' @export
 #' @examples
 #' \dontrun{
-#' resp <- mysportsfeeds::mlb_daily_dfs()
-#' salaries <- parse_daily_dfs(resp$json)
+#' resp <- daily_player_stats("nba", as.Date("2017-11-16"), season = "2017-2018-regular")
+#' parse_daily_player_stats(resp$content)
 #' }
-parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
-  dfs <- json[["dailydfs"]][["dfsEntries"]]
-  if (is.null(dfs)) return(NULL)
+parse_daily_player_stats <- function(json) {
+  playerstats <- json[["dailyplayerstats"]][["playerstatsentry"]]
 
-  # get site
-  site <- match.arg(site)
-  sites <- tolower(purrr::map_chr(dfs, "dfsType"))
-  site_index <- which(sites == site)
-  #stopifnot(length(site_index) == 1L)
-  if (length(site_index) != 1L) return(NA)
+  # player data
+  players <- purrr::map(playerstats, "player")
+  df_players <- parse_players(players)
 
-  # dfs data
-  dfs <- dfs[[site_index]][["dfsRows"]]
+  # team data
+  teams <- purrr::map(playerstats, "team")
+  df_teams <- parse_teams(teams)
 
-  # player
-  id <- purrr::map_chr(dfs, c("player", "ID"), .null = NA)
-  fname <- purrr::map_chr(dfs, c("player", "FirstName"), .null = NA)
-  lname <- purrr::map_chr(dfs, c("player", "LastName"), .null = NA)
-  position <- purrr::map_chr(dfs, c("player", "Position"), .null = NA)
-  #dfs_id <- purrr::map_chr(dfs, c("player", "dfsSourceId"), .null = NA)
+  # stats
+  stats <- purrr::map(playerstats, "stats")
+  df_stats <- parse_stats(stats)
 
-  # team
-  team_id <- purrr::map_chr(dfs, c("team", "ID"))
-  team <- purrr::map_chr(dfs, c("team", "Abbreviation"))
-
-  # game
-  game_id <- purrr::map_chr(dfs, c("game", "id"), .null = NA)
-
-  # salary
-  salary <- as.integer(purrr::map_chr(dfs, "salary" ))
-
-  # fantasy points
-  fpts <- as.double(purrr::map_chr(dfs, "fantasyPoints", .null = NA))
-
-  tibble::tibble(id = id, team_id = team_id, game_id = game_id,
-                 fname = fname, lname = lname, team = team, position = position,
-                 salary = salary, fpts = fpts)#, dfs_id = dfs_id)
+  dplyr::bind_cols(df_players, df_teams, df_stats)
 }
 

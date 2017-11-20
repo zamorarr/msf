@@ -16,7 +16,7 @@ Parse fantasy salaries for today's games
 }
 \examples{
 \dontrun{
-resp <- mysportsfeeds::mlb_daily_dfs()
-salaries <- parse_daily_dfs(resp$json)
+resp <- daily_dfs("nba")
+parse_daily_dfs(resp$content)
 }
 }
