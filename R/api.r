@@ -22,8 +22,8 @@ msf_api <- function(path, query = NULL) {
   if (httr::http_error(resp)) {
     stop(
       sprintf(
-        "MySportsFeeds API request failed [%s]\n",
-        httr::status_code(resp)
+        "MySportsFeeds API request failed [%s]\n[%s]",
+        httr::status_code(resp), url
       ),
       call. = FALSE
     )
