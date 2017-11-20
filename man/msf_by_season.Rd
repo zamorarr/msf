@@ -9,7 +9,6 @@
 \alias{full_game_schedule}
 \alias{latest_updates}
 \alias{overall_team_standings}
-\alias{player_gamelogs}
 \alias{player_injuries}
 \alias{playoff_team_standings}
 \title{MySportsFeeds API calls by season}
@@ -29,8 +28,6 @@ full_game_schedule(sport, ...)
 latest_updates(sport, ...)
 
 overall_team_standings(sport, ...)
-
-player_gamelogs(sport, ...)
 
 player_injuries(sport, ...)
 
@@ -67,8 +64,6 @@ think your queries will reach the throttle limits.
 \item \code{latest_updates}: This feed lists the last updated date/time for each available feed.
 
 \item \code{overall_team_standings}: A list of ranked team standings for ALL teams, along with stats.
-
-\item \code{player_gamelogs}: Game logs for one or more players
 
 \item \code{player_injuries}: A list of all currently injured players.
 
