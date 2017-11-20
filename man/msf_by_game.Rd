@@ -7,7 +7,7 @@
 \alias{game_starting_lineup}
 \title{MySportsFeeds API calls by game}
 \usage{
-msf_by_game(feed, sport, gameid, season = "current", delay = 5)
+msf_by_game(feed, sport, gameid, season = "current", delay = 1)
 
 game_boxscore(sport, gameid, ...)
 
