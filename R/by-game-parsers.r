@@ -59,6 +59,7 @@ parse_team_boxscore <- function(json) {
 #' \dontrun{
 #' resp <- game_starting_lineup("nhl", "20171014-BUF-LAK", season = "2017-2018-regular")
 #' resp <- game_starting_lineup("mlb", "20170822-COL-KC", season = "2017-regular")
+#' resp <- game_starting_lineup("nba", "42070", season = "2017-2018-regular")
 #' parse_starting_lineup(resp$content, "actual")
 #'
 #' }
@@ -71,7 +72,9 @@ parse_starting_lineup <- function(json, type = c("actual", "expected")) {
   # lineups
   type <- match.arg(type)
   lineups <- purrr::map_dfr(startinglineup[["teamLineup"]], parse_single_lineup, type)
-  lineups
+  lineups$game_id <- game_id
+
+  lineups[c("player_id", "team_id", "game_id", "lineup_position")]
 }
 
 #' @keywords internal
@@ -158,6 +161,10 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
 #  tibble::tibble(play_id, event = event_type, data = event_data)
 #}
 
+#parse_starting_lineup(resp$content, "actual") %>%
+#  filter(!is.na(player_id)) %>%
+#  mutate(type = if_else(grepl("BO[0-9]", lineup_position), "BO", "position")) %>%
+#  tidyr::spread(type, lineup_position)
 
 #mlb_batting_order <- function(id, position, team_id) {
 #  is_order <- grepl("BO", position) # batting order values start with BO

@@ -14,3 +14,7 @@ delay_by <- function(delay, f) {
     res
   }
 }
+
+camel_to_underscore <- function(x) {
+  gsub(" ", "_", trimws(tolower(gsub("([[:upper:]])", " \\1", x))))
+}

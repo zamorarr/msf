@@ -47,7 +47,10 @@ parse_stats <- function(json) {
   df_stats <- purrr::modify_depth(df_stats, 2, "#text")
   df_stats <- transpose_and_simplify(df_stats)
   df_stats <- purrr::map(df_stats, as.double)
-  tibble::as_tibble(df_stats)
+
+  df <- tibble::as_tibble(df_stats)
+  colnames(df) <- camel_to_underscore(colnames(df))
+  df
 }
 
 transpose_and_simplify <- function(x) {

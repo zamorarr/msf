@@ -18,6 +18,7 @@ Parse starting lineup for a game
 \dontrun{
 resp <- game_starting_lineup("nhl", "20171014-BUF-LAK", season = "2017-2018-regular")
 resp <- game_starting_lineup("mlb", "20170822-COL-KC", season = "2017-regular")
+resp <- game_starting_lineup("nba", "42070", season = "2017-2018-regular")
 parse_starting_lineup(resp$content, "actual")
 
 }
