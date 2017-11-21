@@ -21,7 +21,7 @@ test_that("daily dfs parser works", {
   actual <- parse_daily_dfs(j, "draftkings")
 
   expect_equal(nrow(actual), 413L)
-  expect_equal(ncol(actual), 12L)
+  expect_equal(ncol(actual), 8L)
 })
 
 test_that("daily game schedule parser works", {

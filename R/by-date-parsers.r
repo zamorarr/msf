@@ -71,6 +71,13 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
   result <- dplyr::bind_cols(df_players, df_teams)
   result[c("game_id", "salary", "fpts")] <- list(game_id, salary, fpts)
 
+  # tidy data frame
+  result <- tidyr::unite(result, "name", player_firstname, player_lastname, sep = " ")
+  result <- dplyr::select(
+    result,
+    player_id, team_id, game_id, name = name, team = team_abbreviation,
+    position = player_position, salary, fpts)
+
   result
 }
 
