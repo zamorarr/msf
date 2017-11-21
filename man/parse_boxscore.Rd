@@ -14,7 +14,8 @@ Parse box scores
 }
 \examples{
 \dontrun{
-resp <- mysportsfeeds::nfl_game_boxscore("30904", "2016-2017-regular")
+resp <- game_boxscore("nfl", "20170917-ARI-IND", season = "2017-2018-regular")
+resp <- game_boxscore("nhl", "20171114-BUF-PIT", season = "2017-2018-regular")
 parse_boxscore(resp$content)
 }
 }

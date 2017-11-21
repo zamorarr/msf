@@ -43,9 +43,9 @@ parse_teams <- function(json) {
 #' @param json list of json data
 #' @keywords internal
 parse_stats <- function(json) {
-  stat_values <- purrr::modify_depth(json, 2, "#text")
-  df_stats <- purrr::simplify_all(purrr::transpose(stat_values))
-  df_stats[] <- purrr::map(df_stats, as.double)
+  df_stats <- purrr::modify_depth(json, 2, "#text")
+  df_stats <- transpose_and_simplify(df_stats)
+  df_stats <- purrr::map(df_stats, as.double)
   tibble::as_tibble(df_stats)
 }
 

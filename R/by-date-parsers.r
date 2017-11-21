@@ -139,10 +139,7 @@ parse_daily_player_stats <- function(json) {
 
   # stats
   stats <- purrr::map(playerstats, "stats")
-  df_stats <- transpose_and_simplify(stats)
-  df_stats <- purrr::simplify_all(purrr::modify_depth(df_stats, 2, "#text"))
-  df_stats <- purrr::map(df_stats, as.double)
-  df_stats <- tibble::as_tibble(df_stats)
+  df_stats <- parse_stats(stats)
 
   dplyr::bind_cols(df_players, df_teams, df_stats)
 }

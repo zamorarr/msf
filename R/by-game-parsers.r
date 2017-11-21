@@ -1,152 +1,89 @@
-#' Parse starting lineup for a game
-#'
-#' @param json content from response
-#' @param type actual or expected lineup
-#' @param is_mlb whether to parse batting order or not
-#' @export
-#' @examples
-#' \dontrun{
-#' resp <- mysportsfeeds::mlb_game_starting_lineup("38494")
-#' starters <- mlb_starters(resp$json)
-#' }
-parse_starting_lineup <- function(json, type = c("expected", "actual"),
-                                  is_mlb = FALSE) {
-  game <- json[["gamestartinglineup"]][["game"]]
-  lineups <- json[["gamestartinglineup"]][["teamLineup"]]
-
-  # expected lineups
-  type <- match.arg(type)
-  starters <- purrr::map(lineups, c(type, "starter"))
-  team_ids <- purrr::map_chr(lineups, c("team", "ID"))
-
-  if(is.null(starters[[1]])) return(NULL) # add better catch for this
-  starters_df <- purrr::map2_df(starters, team_ids, extract_lineup, is_mlb)
-  starters_df[["game_id"]] <- game[["id"]]
-
-  starters_df
-}
-
-#' Extract expected lineup
-#'
-#' @param x list of expected players in lineup
-#' @param team_id id of team
-extract_lineup <- function(x, team_id, is_mlb) {
-  # player and position
-  id <- purrr::map_chr(x, c("player", "ID"), .null = NA)
-  pos <- purrr::map_chr(x, c("player", "Position"), .null = NA)
-
-  # more detailed position
-  position <- purrr::map_chr(x, "position")
-
-  # lineup order
-  if (is_mlb) {
-    mlb_batting_order(id, position, team_id)
-  } else {
-    tibble::tibble(id = id, team_id = team_id, position = position, pos = pos)
-  }
-}
-
-mlb_batting_order <- function(id, position, team_id) {
-  is_order <- grepl("BO", position) # batting order values start with BO
-  col_type <- dplyr::if_else(is_order, "lineup_order", "position")
-
-  df <- tibble::tibble(id = id, position = position, col_type = col_type)
-  df <- dplyr::filter(df, !is.na(id))
-
-  # hack to avoid errors when players are listed at multiple lineup spots
-  # simply selects the first instance of that player
-  df <- dplyr::arrange(df, id, position)
-  df <- dplyr::group_by(df, id, col_type)
-  df <- dplyr::slice(df, 1)
-  df <- dplyr::ungroup(df)
-
-  df <- tidyr::spread(df, col_type, position)
-
-
-  # add lineup_order column if not found
-  if (!("lineup_order" %in% colnames(df))) df[["lineup_order"]] <- NA_character_
-
-  # batting orders are in the form BO1, BO2, BO3, etc..
-  # stopifnot(length(df[["lineup_order"]]) == 9)
-  df[["lineup_order"]] <- stringr::str_extract(df[["lineup_order"]], "[0-9]")
-  df[["lineup_order"]] <- as.integer(df[["lineup_order"]])
-
-  # add team id
-  df[["team_id"]] <- team_id
-
-  df[c("id", "lineup_order", "team_id")]
-}
-
 #' Parse box scores
 #'
 #' @param json content from response
 #' @export
 #' @examples
 #' \dontrun{
-#' resp <- mysportsfeeds::nfl_game_boxscore("30904", "2016-2017-regular")
+#' resp <- game_boxscore("nfl", "20170917-ARI-IND", season = "2017-2018-regular")
+#' resp <- game_boxscore("nhl", "20171114-BUF-PIT", season = "2017-2018-regular")
 #' parse_boxscore(resp$content)
 #' }
 parse_boxscore <- function(json) {
-  # game data
-  game <- json[["gameboxscore"]][["game"]]
-  date <- game[["date"]][[1]]
-  time <- game[["time"]][[1]]
+  gameboxscore <- json[["gameboxscore"]]
 
-  # player/team data
-  away <- json[["gameboxscore"]][["awayTeam"]][["awayPlayers"]][["playerEntry"]]
-  home <- json[["gameboxscore"]][["homeTeam"]][["homePlayers"]][["playerEntry"]]
+  # game data
+  game <- gameboxscore[["game"]]
   away_id <- game[["awayTeam"]][["ID"]]
   home_id <- game[["homeTeam"]][["ID"]]
 
-  away_df <- parse_boxscore_players(away, away_id)
-  home_df <- parse_boxscore_players(home, home_id)
-
-  df <- dplyr::bind_rows(away_df, home_df)
-
-  # remove players who have NULL stats
-  tokeep <- which(purrr::map_lgl(df[["stats"]], ~ !is.null(.x)))
-  df <- df[tokeep,]
-
-  tidy_boxscore(df)
-}
-
-parse_boxscore_players <- function(players, team_id) {
-  # players
-  player_ids <- purrr::map_chr(players, c("player", "ID"))
-  player_pos <- purrr::map_chr(players, c("player", "Position"))
+  # player data
+  away <- gameboxscore[["awayTeam"]][["awayPlayers"]][["playerEntry"]]
+  home <- gameboxscore[["homeTeam"]][["homePlayers"]][["playerEntry"]]
+  away_players <- purrr::map_chr(away, c("player", "ID"))
+  home_players <- purrr::map_chr(home, c("player", "ID"))
 
   # stats
-  stats <- purrr::map(players, "stats", .default = NULL)
+  away_stats <- purrr::map(away, "stats")
+  home_stats <- purrr::map(home, "stats")
+  df_away_stats <- parse_stats(away_stats)
+  df_home_stats <- parse_stats(home_stats)
 
-  tibble::tibble(team_id = team_id, player = player_ids, position = player_pos,
-                 stats = stats)
+  # data frames
+  df_home <- tibble(player_id = home_players, team_id = home_id)
+  df_home <- dplyr::bind_cols(df_home, df_home_stats)
+  df_away <- tibble(player_id = away_players, team_id = away_id)
+  df_away <- dplyr::bind_cols(df_away, df_away_stats)
+
+  dplyr::bind_rows(df_away, df_home)
 }
 
-tidy_boxscore <- function(df) {
-  # extract and remove stats column. it is nested and needs to be parsed
-  stats <- df[["stats"]]
-  df[["stats"]] <- NULL
+#' Parse starting lineup for a game
+#'
+#' @param json content from response
+#' @param type actual or expected lineup
+#' @export
+#' @examples
+#' \dontrun{
+#' resp <- game_starting_lineup("nhl", "20171014-BUF-LAK", season = "2017-2018-regular")
+#' resp <- game_starting_lineup("mlb", "20170822-COL-KC", season = "2017-regular")
+#' parse_starting_lineup(resp$content, "actual")
+#'
+#' }
+parse_starting_lineup <- function(json, type = c("actual", "expected")) {
+  startinglineup <- json[["gamestartinglineup"]]
 
-  # unnest stats column
-  stats_df <- purrr::map_dfr(stats, unnest_stats)
+  # game info
+  game_id <- startinglineup[["game"]][["id"]]
 
-  # merge unnested stats back into data frame
-  dplyr::bind_cols(df, stats_df)
+  # lineups
+  type <- match.arg(type)
+  lineups <- purrr::map_dfr(startinglineup[["teamLineup"]], parse_single_lineup, type)
+  lineups
 }
 
-unnest_stats <- function(x) {
-  s <- purrr::map_chr(x, "#text")
-  cnames <- names(s)
+#' @keywords internal
+parse_single_lineup <- function(lineup, type) {
+  # team info
+  team_id <- lineup[["team"]][["ID"]]
 
-  data <- as.list(as.double(s))
-  names(data) <- cnames
-  tibble::as_tibble(data)
+  # player info
+  players <- lineup[[type]][["starter"]]
+  lineup_position <- purrr::map_chr(players, "position", .null = NA)
+  player_ids <- purrr::map_chr(players, c("player", "ID"), .null = NA)
+
+  tibble::tibble(player_id = player_ids, team_id = team_id, lineup_position = lineup_position)
 }
+
 
 #' Parse Play by Play Data
 #' @param json list of data
 #' @param sport sport
 #' @export
+#' @examples
+#' \dontrun{
+#' resp <- game_pbp("nhl", "20161215-FLO-WPJ", season = "2016-2017-regular")
+#' parse_game_pbp(resp$content, "nhl")
+#' }
 parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
   sport = match.arg(sport)
 
@@ -201,12 +138,43 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
 #' Parse mlb events
 #' @param event a nested json event
 #' @keywords internal
-parse_mlb_event <- function(event) {
-  event_type <- purrr::map_chr(event, ~ names(head(.x)))
-  event_data <- purrr::map(event, 1)
-  play_id <- seq_along(event_type)
-  tibble::tibble(play_id, event = event_type, data = event_data)
-}
+#parse_mlb_event <- function(event) {
+#  event_type <- purrr::map_chr(event, ~ names(head(.x)))
+#  event_data <- purrr::map(event, 1)
+#  play_id <- seq_along(event_type)
+#  tibble::tibble(play_id, event = event_type, data = event_data)
+#}
 
+
+mlb_batting_order <- function(id, position, team_id) {
+  is_order <- grepl("BO", position) # batting order values start with BO
+  col_type <- dplyr::if_else(is_order, "lineup_order", "position")
+
+  df <- tibble::tibble(id = id, position = position, col_type = col_type)
+  df <- dplyr::filter(df, !is.na(id))
+
+  # hack to avoid errors when players are listed at multiple lineup spots
+  # simply selects the first instance of that player
+  df <- dplyr::arrange(df, id, position)
+  df <- dplyr::group_by(df, id, col_type)
+  df <- dplyr::slice(df, 1)
+  df <- dplyr::ungroup(df)
+
+  df <- tidyr::spread(df, col_type, position)
+
+
+  # add lineup_order column if not found
+  if (!("lineup_order" %in% colnames(df))) df[["lineup_order"]] <- NA_character_
+
+  # batting orders are in the form BO1, BO2, BO3, etc..
+  # stopifnot(length(df[["lineup_order"]]) == 9)
+  df[["lineup_order"]] <- stringr::str_extract(df[["lineup_order"]], "[0-9]")
+  df[["lineup_order"]] <- as.integer(df[["lineup_order"]])
+
+  # add team id
+  df[["team_id"]] <- team_id
+
+  df[c("id", "lineup_order", "team_id")]
+}
 
 
