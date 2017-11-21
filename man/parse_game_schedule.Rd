@@ -25,6 +25,7 @@ Parse game schedules
 \examples{
 \dontrun{
 resp <- daily_game_schedule("nfl")
-parse_daily_game_schedule(resp$json)
+parse_daily_game_schedule(resp$content)
 }
 }
+\keyword{internal}

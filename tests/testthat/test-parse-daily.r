@@ -21,7 +21,7 @@ test_that("daily dfs parser works", {
   actual <- parse_daily_dfs(j, "draftkings")
 
   expect_equal(nrow(actual), 413L)
-  expect_equal(ncol(actual), 9L)
+  expect_equal(ncol(actual), 12L)
 })
 
 test_that("daily game schedule parser works", {
@@ -31,7 +31,7 @@ test_that("daily game schedule parser works", {
   actual <- parse_daily_game_schedule(j)
 
   expect_equal(nrow(actual), 1L)
-  expect_equal(ncol(actual), 7L)
+  expect_equal(ncol(actual), 11L)
 })
 
 test_that("daily player stats parser works", {
@@ -40,6 +40,16 @@ test_that("daily player stats parser works", {
 
   actual <- parse_daily_player_stats(j)
 
-  expect_equal(nrow(actual), 1L)
-  expect_equal(ncol(actual), 68L)
+  expect_equal(nrow(actual), 43L)
+  expect_equal(ncol(actual), 72L)
+})
+
+test_that("daily roster players parser works", {
+  # nba data
+  j <- read_msf("mlb-roster-players.json")
+
+  actual <- parse_roster_players(j)
+
+  expect_equal(nrow(actual), 1896L)
+  expect_equal(ncol(actual), 16L)
 })

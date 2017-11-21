@@ -2,7 +2,7 @@ context("parse-boxscore")
 
 test_that("nhl boxscore parser works", {
   # nhl data
-  j <- mysportsfeeds::read_msf("nhl-boxscore.json")
+  j <- read_msf("nhl-boxscore.json")
 
   actual <- parse_boxscore(j)
   col_types <- vapply(actual[4:38], class, FUN.VALUE = character(1L))
@@ -15,7 +15,7 @@ test_that("nhl boxscore parser works", {
 
 test_that("mlb boxscore parser works", {
   # mlb data
-  j <- mysportsfeeds::read_msf("mlb-boxscore.json")
+  j <- read_msf("mlb-boxscore.json")
 
   actual <- parse_boxscore(j)
   col_types <- vapply(actual[4:135], class, FUN.VALUE = character(1L))
@@ -27,7 +27,7 @@ test_that("mlb boxscore parser works", {
 
 test_that("nfl boxscore parser works", {
   # nfl data
-  j <- mysportsfeeds::read_msf("nfl-boxscore.json")
+  j <- read_msf("nfl-boxscore.json")
 
   actual <- parse_boxscore(j)
   col_types <- vapply(actual[4:139], class, FUN.VALUE = character(1L))
@@ -39,7 +39,7 @@ test_that("nfl boxscore parser works", {
 
 test_that("nfl boxscore parser skips players when they have NULL stats", {
   # nfl data
-  j <- mysportsfeeds::read_msf("nfl-boxscore-with-null-stats.json")
+  j <- read_msf("nfl-boxscore-with-null-stats.json")
 
   actual <- parse_boxscore(j)
   col_types <- vapply(actual[4:139], class, FUN.VALUE = character(1L))
