@@ -16,25 +16,38 @@ parse_boxscore <- function(json) {
   away_id <- game[["awayTeam"]][["ID"]]
   home_id <- game[["homeTeam"]][["ID"]]
 
-  # player data
+  # player stats
   away <- gameboxscore[["awayTeam"]][["awayPlayers"]][["playerEntry"]]
   home <- gameboxscore[["homeTeam"]][["homePlayers"]][["playerEntry"]]
-  away_players <- purrr::map_chr(away, c("player", "ID"))
-  home_players <- purrr::map_chr(home, c("player", "ID"))
-
-  # stats
-  away_stats <- purrr::map(away, "stats")
-  home_stats <- purrr::map(home, "stats")
-  df_away_stats <- parse_stats(away_stats)
-  df_home_stats <- parse_stats(home_stats)
+  df_away <- parse_team_boxscore(away)
+  df_home <- parse_team_boxscore(home)
 
   # data frames
-  df_home <- tibble(player_id = home_players, team_id = home_id)
-  df_home <- dplyr::bind_cols(df_home, df_home_stats)
-  df_away <- tibble(player_id = away_players, team_id = away_id)
-  df_away <- dplyr::bind_cols(df_away, df_away_stats)
+  df_home$team_id <- home_id
+  df_away$team_id <- away_id
 
-  dplyr::bind_rows(df_away, df_home)
+  result <- dplyr::bind_rows(df_away, df_home)
+  dplyr::select(result, player_id, team_id, position, dplyr::everything())
+}
+
+#' @keywords internal
+parse_team_boxscore <- function(json) {
+
+  # stats
+  stats <- purrr::map(json, "stats")
+  toremove <- purrr::map_lgl(stats, is.null) # no stats? get outta here
+  stats <- stats[!toremove]
+  df_stats <- parse_stats(stats)
+
+  # players
+  players <- purrr::map(json, "player")
+  players <- players[!toremove]
+  player_ids <- purrr::map_chr(players, "ID")
+  positions <- purrr::map_chr(players, "Position")
+
+  result <- tibble::tibble(player_id = player_ids, position = positions)
+  dplyr::bind_cols(result, df_stats)
+
 }
 
 #' Parse starting lineup for a game
@@ -146,35 +159,35 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
 #}
 
 
-mlb_batting_order <- function(id, position, team_id) {
-  is_order <- grepl("BO", position) # batting order values start with BO
-  col_type <- dplyr::if_else(is_order, "lineup_order", "position")
-
-  df <- tibble::tibble(id = id, position = position, col_type = col_type)
-  df <- dplyr::filter(df, !is.na(id))
-
-  # hack to avoid errors when players are listed at multiple lineup spots
-  # simply selects the first instance of that player
-  df <- dplyr::arrange(df, id, position)
-  df <- dplyr::group_by(df, id, col_type)
-  df <- dplyr::slice(df, 1)
-  df <- dplyr::ungroup(df)
-
-  df <- tidyr::spread(df, col_type, position)
-
-
-  # add lineup_order column if not found
-  if (!("lineup_order" %in% colnames(df))) df[["lineup_order"]] <- NA_character_
-
-  # batting orders are in the form BO1, BO2, BO3, etc..
-  # stopifnot(length(df[["lineup_order"]]) == 9)
-  df[["lineup_order"]] <- stringr::str_extract(df[["lineup_order"]], "[0-9]")
-  df[["lineup_order"]] <- as.integer(df[["lineup_order"]])
-
-  # add team id
-  df[["team_id"]] <- team_id
-
-  df[c("id", "lineup_order", "team_id")]
-}
+#mlb_batting_order <- function(id, position, team_id) {
+#  is_order <- grepl("BO", position) # batting order values start with BO
+#  col_type <- dplyr::if_else(is_order, "lineup_order", "position")
+#
+#  df <- tibble::tibble(id = id, position = position, col_type = col_type)
+#  df <- dplyr::filter(df, !is.na(id))
+#
+#  # hack to avoid errors when players are listed at multiple lineup spots
+#  # simply selects the first instance of that player
+#  df <- dplyr::arrange(df, id, position)
+#  df <- dplyr::group_by(df, id, col_type)
+#  df <- dplyr::slice(df, 1)
+#  df <- dplyr::ungroup(df)
+#
+#  df <- tidyr::spread(df, col_type, position)
+#
+#
+#   # add lineup_order column if not found
+#   if (!("lineup_order" %in% colnames(df))) df[["lineup_order"]] <- NA_character_
+#
+#   # batting orders are in the form BO1, BO2, BO3, etc..
+#   # stopifnot(length(df[["lineup_order"]]) == 9)
+#   df[["lineup_order"]] <- stringr::str_extract(df[["lineup_order"]], "[0-9]")
+#   df[["lineup_order"]] <- as.integer(df[["lineup_order"]])
+#
+#   # add team id
+#   df[["team_id"]] <- team_id
+#
+#   df[c("id", "lineup_order", "team_id")]
+# }
 
 

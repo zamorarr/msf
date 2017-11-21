@@ -43,14 +43,18 @@ parse_teams <- function(json) {
 #' @param json list of json data
 #' @keywords internal
 parse_stats <- function(json) {
-  df_stats <- purrr::modify_depth(json, 2, "#text")
+  df_stats <- purrr::modify_if(json, is.null, ~list(list("#text" = NA)))
+  df_stats <- purrr::modify_depth(df_stats, 2, "#text")
   df_stats <- transpose_and_simplify(df_stats)
   df_stats <- purrr::map(df_stats, as.double)
   tibble::as_tibble(df_stats)
 }
 
 transpose_and_simplify <- function(x) {
-  transposed <- purrr::transpose(x)
+  names_all <- purrr::map(x, names)
+  names_unique <- purrr::reduce(names_all, union)
+
+  transposed <- purrr::transpose(x, .names = names_unique)
   transposed[] <- purrr::modify_if(transposed, is.list, replace_null_with_na)
   purrr::simplify_all(transposed)
 }
