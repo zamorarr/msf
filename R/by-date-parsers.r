@@ -51,6 +51,7 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
 
   # player
   players <- purrr::map(dfs, "player")
+  players <- purrr::modify_if(players, is.null, ~list(ID = NA_character_))
   df_players <- tibble::as_tibble(transpose_and_simplify(players))
   colnames(df_players) <- paste("player", tolower(colnames(df_players)), sep = "_")
 
@@ -63,7 +64,7 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
   game_id <- purrr::map_chr(dfs, c("game", "id"), .null = NA)
 
   # salary
-  salary <- as.integer(purrr::map_chr(dfs, "salary"))
+  salary <- as.integer(purrr::map_chr(dfs, "salary"), .null = NA)
 
   # fantasy points
   fpts <- as.double(purrr::map_chr(dfs, "fantasyPoints", .null = NA))

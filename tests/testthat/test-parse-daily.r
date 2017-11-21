@@ -17,10 +17,14 @@ test_that("current season parser works", {
 test_that("daily dfs parser works", {
   # nhl data
   j <- read_msf("nhl-daily-dfs.json")
-
   actual <- parse_daily_dfs(j, "draftkings")
-
   expect_equal(nrow(actual), 413L)
+  expect_equal(ncol(actual), 8L)
+
+  # nfl data
+  j <- read_msf("nfl-daily-dfs.json")
+  actual <- parse_daily_dfs(j, "draftkings")
+  expect_equal(nrow(actual), 501L)
   expect_equal(ncol(actual), 8L)
 })
 
