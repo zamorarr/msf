@@ -180,6 +180,7 @@ parse_roster_players <- function(json) {
 
   # team data
   teams <- purrr::map(playerentries, "team")
+  teams <- purrr::modify_if(teams, is.null, ~list(ID = NA_character_))
   df_teams <- tibble::as_tibble(transpose_and_simplify(teams))
   colnames(df_teams) <- paste("team", tolower(colnames(df_teams)), sep = "_")
 
