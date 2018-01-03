@@ -1,8 +1,8 @@
 context("utils")
 
-test_that("multiplication works", {
+test_that("camel to underscore works", {
   x <- c("heyIAmCool", "HelloGoodbye")
   actual <- camel_to_underscore(x)
   expected <- c("hey_i_am_cool", "hello_goodbye")
-  expect_equal(2 * 2, 4)
+  expect_equal(actual, expected)
 })
