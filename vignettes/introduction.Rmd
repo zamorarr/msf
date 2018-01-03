@@ -1,0 +1,147 @@
+---
+title: "Introduction"
+author: "zamorarr"
+date: "03-Jan-2017"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+msf is an R wrapper for the [MySportsFeeds API](https://www.mysportsfeeds.com/).
+
+There is an [official R package](https://github.com/MySportsFeeds/mysportsfeeds-r) provided by MySportsFeeds, but this package differs in the following ways:
+
+- Provides `parse_*` functions to convert a JSON list into a tidy dataframe. 
+- Provides `delay` parameter in API calls to execute multiple queries with a delay between them in order to obey rate limits.
+- Provides common defaults for some parameters (ex. uses `season = "current"`) to reduce typing.
+
+These additions have been very helpful for me to use the data effectively in R. But, if you'd rather use the official package I strongly encourage you do so. Also, when I started this package the official R package had not been released yet. 
+
+## Install
+```R
+devtools::install_github("zamorarr/msf")
+```
+
+## Usage
+To start, make sure you have set the following environment variables set on your computer. Putting them in your *.Renviron* file is probably the easiest way to do it.
+
+```sh
+MYSPORTSFEEDS_USER=YOUR_USERNAME
+MYSPORTSFEEDS_PASSWORD=YOUR_PASSWORD
+```
+
+Then in R you can query the feeds easily. See the function documentation for a description of the parameters. They should follow the same parameters required to query the official web API.
+
+```{r example,eval=FALSE}
+library(msf)
+
+# Get data
+resp <- game_boxscore("nba", "20171017-BOS-CLE", season = "2017-2018-regular")
+```
+
+```{r examplemock,echo=FALSE,message=FALSE}
+library(msf)
+library(httptest)
+library(withr)
+
+# I'm not showing this part because I'm actually mocking the API call. No need to confuse the user.
+#json <- read_msf("../tests/testthat/api.mysportsfeeds.com/v1.1/pull/nba/2017-2018-regular/game_boxscore.json-49e732.json")
+mock_testdir <- function(expr) {
+  with_dir("../tests/testthat", with_mock_API(expr))
+}
+
+resp <- mock_testdir(game_boxscore("nba", "20171017-BOS-CLE", season = "2017-2018-regular"))
+```
+
+```{r}
+# You can directly work with the json content represented as a list
+json <- resp$content
+str(json,2)
+
+# Or parse the json list into tidy dataframe
+boxscore <- parse_boxscore(json)
+boxscore[1:10,1:6]
+```
+
+
+## MSF Object
+A response from an API call returns an `msf_api` object. This object is a list with four variables:
+
+- **response** The entire response http response received from the MySportsFeeds API.
+- **path** The URL used to query the data.
+- **content** The JSON content converted into a list.
+- **name** A default name given to the query.
+
+Most users will likely only care about the `content` object. This object is a list representing the JSON data from the API call. You can view its contents with `str`.
+
+```{r}
+json <- resp$content
+str(json, 2)
+```
+
+The data in the JSON varies by the type of API call made. See the [official docs](https://www.mysportsfeeds.com/data-feeds/api-docs) for a description of each.
+
+## Multiple Queries
+You can also run multiple queries sequentially by passing in a vector of inputs for certain fields. This will return a list of `msf_api` objects. You can set the `delay` parameter to force a delay between queries. This is to ensure that you obey the rate limits, which are currently limited to 250 requests over a 5 minute span. This comes out to approximately one query a second, which is the default delay. See the function documentation for details on which inputs can be vectors in order to run multiple queries.
+
+```{r multipleQueries,eval=FALSE}
+resp <- game_boxscore("nba", c("20171026-BOS-MIL", "20171109-LAL-WAS"), delay = 1)
+resp
+```
+
+```{r multipleQueriesMock,echo=FALSE}
+resp <- mock_testdir(game_boxscore("nba", c("20171026-BOS-MIL", "20171109-LAL-WAS"), delay = 1))
+resp
+```
+
+## Queries by Date
+The following functions query the MySportsFeeds API by date. If you do not provide a date, the current date will be used. If you provide multiple dates the queries will be issued sequentially with a `delay` between them.
+
+- `current_season`
+- `daily_dfs`
+- `daily_game_schedule`
+- `daily_player_stats`
+- `roster_players`
+- `scoreboard`
+
+## Queries by Game
+The following functions query the MySportsFeeds API by game. You must provide a game id such as "40265" or "20171119-MIA-TOR". If you provide multiple dates the queries will be issued sequentially with a `delay` between them.
+
+- `game_boxscore`
+- `game_pbp`
+- `game_starting_lineup`
+
+## Queries by Season
+The following functions query the MySportsFeeds API by season. If you do not provide a season, the current season will be used. If you provide multiple seasons the queries will be issued sequentially with a `delay` between them.
+
+- `active_players`
+- `conference_team_standings`
+- `cumulative_player_stats`
+- `division_team_standings`
+- `full_game_schedule`
+- `latest_updates`
+- `overall_team_standings`
+- `player_injuries`
+- `playoff_team_standings`
+
+## Queries by Team
+The following functions query the MySportsFeeds API by team. You must provide a team id such as "91" or "ATL". If you provide multiple teams the queries will be issued sequentially with a `delay` between them.
+
+- `team_gamelogs`
+- `player_gamelogs`
+
+## Parsing JSON to Tidy Dataframe
+There are `parse_*` functions available to convert the JSON list into a tidy dataframe. These are included for convenience and are designed to NOT include all the data in the JSON. Instead, data that is duplicated in other feeds (such as player height/weight) is silently dropped. This is to provide the simplest representation in a data frame. In some cases columns are represented as nested lists when there are many ways to parse the data. The parse functions all require you to pass the `resp$content` or provide a list of JSON data.
+
+```{r boxscore, eval=FALSE}
+resp <- game_boxscore("nba", "20171017-BOS-CLE", season = "2017-2018-regular")
+parse_boxscore(resp$content)
+```
+
+```{r boxscoreMock,echo=FALSE}
+resp <- mock_testdir(game_boxscore("nba", "20171017-BOS-CLE", season = "2017-2018-regular"))
+parse_boxscore(resp$content)
+```
+
