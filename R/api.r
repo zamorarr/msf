@@ -12,6 +12,10 @@ msf_api <- function(path, query = NULL) {
   username <- Sys.getenv("MYSPORTSFEEDS_USER")
   password <- Sys.getenv("MYSPORTSFEEDS_PASSWORD")
 
+  if (nchar(username) == 0 | nchar(password) == 0) {
+    stop("Please set MYSPORTSFEED_USER and MYSPORTSFEED_PASSWORD envrionment variables", call. = FALSE)
+  }
+
   # get data
   resp <- httr::GET(url, httr::authenticate(username, password))
 

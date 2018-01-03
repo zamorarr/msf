@@ -14,3 +14,9 @@ parse_game_pbp(json, sport = c(NA, "nba", "nhl", "nfl", "mlb"))
 \description{
 Parse Play by Play Data
 }
+\examples{
+\dontrun{
+resp <- game_pbp("nhl", "20161215-FLO-WPJ", season = "2016-2017-regular")
+parse_game_pbp(resp$content, "nhl")
+}
+}

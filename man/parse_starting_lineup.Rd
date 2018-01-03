@@ -4,21 +4,22 @@
 \alias{parse_starting_lineup}
 \title{Parse starting lineup for a game}
 \usage{
-parse_starting_lineup(json, type = c("expected", "actual"), is_mlb = FALSE)
+parse_starting_lineup(json, type = c("actual", "expected"))
 }
 \arguments{
 \item{json}{content from response}
 
 \item{type}{actual or expected lineup}
-
-\item{is_mlb}{whether to parse batting order or not}
 }
 \description{
 Parse starting lineup for a game
 }
 \examples{
 \dontrun{
-resp <- mysportsfeeds::mlb_game_starting_lineup("38494")
-starters <- mlb_starters(resp$json)
+resp <- game_starting_lineup("nhl", "20171014-BUF-LAK", season = "2017-2018-regular")
+resp <- game_starting_lineup("mlb", "20170822-COL-KC", season = "2017-regular")
+resp <- game_starting_lineup("nba", "42070", season = "2017-2018-regular")
+parse_starting_lineup(resp$content, "actual")
+
 }
 }

@@ -12,9 +12,11 @@
 #'
 #' @examples
 #' \dontrun{
-#' resp <- full_game_schedule("nfl", c("latest", "2016-2017-regular"), delay = 3)
+#' resp <- active_players("nba")
+#' resp <- full_game_schedule("nfl", c("2017-2018-regular", "2016-2017-regular"), delay = 3)
+#' resp <- player_injuries("nhl", "2016-2017-regular")
 #' }
-msf_by_season <- function(feed, sport, season = "current", delay = 5) {
+msf_by_season <- function(feed, sport, season = "current", delay = 1) {
   stopifnot(length(feed) == 1L, length(sport) == 1L)
   path <- paste(sport, season, feed, sep = "/")
 
@@ -36,10 +38,22 @@ active_players <- function(sport, ...) {
   msf_by_season("active_players.json", sport, ...)
 }
 
+#' @describeIn msf_by_season A list of ranked team standings for each Conference, along with stats.
+#' @export
+conference_team_standings <- function(sport, ...) {
+  msf_by_season("conference_team_standings.json", sport, ...)
+}
+
 #' @describeIn msf_by_season A list of player stats totals for all roster players, summarized by their latest team.
 #' @export
 cumulative_player_stats <- function(sport, ...) {
   msf_by_season("cumulative_player_stats.json", sport, ...)
+}
+
+#' @describeIn msf_by_season A list of ranked team standings for each Division, along with stats.
+#' @export
+division_team_standings <- function(sport, ...) {
+  msf_by_season("division_team_standings.json", sport, ...)
 }
 
 #' @describeIn msf_by_season A list of all games to be played for the entire season.
@@ -48,23 +62,27 @@ full_game_schedule <- function(sport, ...) {
   msf_by_season("full_game_schedule.json", sport, ...)
 }
 
-
 #' @describeIn msf_by_season This feed lists the last updated date/time for each available feed.
 #' @export
 latest_updates <- function(sport, ...) {
   msf_by_season("latest_updates.json", sport, ...)
 }
 
-#' @describeIn msf_by_season Game logs for one or more players
+#' @describeIn msf_by_season A list of ranked team standings for ALL teams, along with stats.
 #' @export
-player_gamelogs <- function(sport, ...) {
-  # need to also have a query that specifies the players or games to return
-  msf_by_season("player_gamelogs.json", sport, ...)
+overall_team_standings <- function(sport, ...) {
+  msf_by_season("overall_team_standings.json", sport, ...)
 }
 
 #' @describeIn msf_by_season A list of all currently injured players.
 #' @export
 player_injuries <- function(sport, ...) {
   msf_by_season("player_injuries.json", sport, ...)
+}
+
+#' @describeIn msf_by_season A list of playoff-ranked team standings for each Conference, along with stats.
+#' @export
+playoff_team_standings <- function(sport, ...) {
+  msf_by_season("playoff_team_standings.json", sport, ...)
 }
 

@@ -3,26 +3,35 @@
 \name{msf_by_season}
 \alias{msf_by_season}
 \alias{active_players}
+\alias{conference_team_standings}
 \alias{cumulative_player_stats}
+\alias{division_team_standings}
 \alias{full_game_schedule}
 \alias{latest_updates}
-\alias{player_gamelogs}
+\alias{overall_team_standings}
 \alias{player_injuries}
+\alias{playoff_team_standings}
 \title{MySportsFeeds API calls by season}
 \usage{
-msf_by_season(feed, sport, season = "current", delay = 5)
+msf_by_season(feed, sport, season = "current", delay = 1)
 
 active_players(sport, ...)
 
+conference_team_standings(sport, ...)
+
 cumulative_player_stats(sport, ...)
+
+division_team_standings(sport, ...)
 
 full_game_schedule(sport, ...)
 
 latest_updates(sport, ...)
 
-player_gamelogs(sport, ...)
+overall_team_standings(sport, ...)
 
 player_injuries(sport, ...)
+
+playoff_team_standings(sport, ...)
 }
 \arguments{
 \item{feed}{feed to request}
@@ -44,19 +53,27 @@ think your queries will reach the throttle limits.
 \itemize{
 \item \code{active_players}: List of active players
 
+\item \code{conference_team_standings}: A list of ranked team standings for each Conference, along with stats.
+
 \item \code{cumulative_player_stats}: A list of player stats totals for all roster players, summarized by their latest team.
+
+\item \code{division_team_standings}: A list of ranked team standings for each Division, along with stats.
 
 \item \code{full_game_schedule}: A list of all games to be played for the entire season.
 
 \item \code{latest_updates}: This feed lists the last updated date/time for each available feed.
 
-\item \code{player_gamelogs}: Game logs for one or more players
+\item \code{overall_team_standings}: A list of ranked team standings for ALL teams, along with stats.
 
 \item \code{player_injuries}: A list of all currently injured players.
+
+\item \code{playoff_team_standings}: A list of playoff-ranked team standings for each Conference, along with stats.
 }}
 
 \examples{
 \dontrun{
-resp <- full_game_schedule("nfl", c("latest", "2016-2017-regular"), delay = 3)
+resp <- active_players("nba")
+resp <- full_game_schedule("nfl", c("2017-2018-regular", "2016-2017-regular"), delay = 3)
+resp <- player_injuries("nhl", "2016-2017-regular")
 }
 }

@@ -17,7 +17,7 @@
 #' resp <- game_boxscore("nba", c("20171026-BOS-MIL", "20171109-LAL-WAS"), delay = 3)
 #' resp <- game_pbp("nhl", "20161215-FLO-WPJ", season = "2016-2017-regular")
 #' }
-msf_by_game <- function(feed, sport, gameid, season = "current", delay = 5) {
+msf_by_game <- function(feed, sport, gameid, season = "current", delay = 1) {
   stopifnot(length(feed) == 1L, length(sport) == 1L, length(season) == 1L)
   path <- paste0(c(sport, season, feed), collapse = "/")
 

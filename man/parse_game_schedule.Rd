@@ -2,19 +2,30 @@
 % Please edit documentation in R/by-date-parsers.r
 \name{parse_game_schedule}
 \alias{parse_game_schedule}
-\title{Parse json of game schedule}
+\alias{parse_daily_game_schedule}
+\title{Parse game schedules}
 \usage{
-parse_game_schedule(json, nm = "dailygameschedule")
+parse_game_schedule(json, nm)
+
+parse_daily_game_schedule(json)
 }
 \arguments{
 \item{json}{content from response}
+
+\item{nm}{"dailygameschedule" or "fullgameschedule"}
 }
 \description{
-Parse json of game schedule
+Parse game schedules
 }
+\section{Functions}{
+\itemize{
+\item \code{parse_daily_game_schedule}: Parse daily game schedule
+}}
+
 \examples{
 \dontrun{
-resp <- mysportsfeeds::mlb_daily_game_schedule()
-games <- parse_daily_game_schedule(resp$json)
+resp <- daily_game_schedule("nfl")
+parse_daily_game_schedule(resp$content)
 }
 }
+\keyword{internal}

@@ -14,8 +14,10 @@
 #' @examples
 #' \dontrun{
 #' resp <- daily_dfs("nba", c(Sys.Date(), Sys.Date() - 1), delay = 3)
+#' resp <- daily_game_schedule("nhl")
+#' resp <- daily_player_stats("mlb", as.Date("2017-06-06"), season = "2017-regular")
 #' }
-msf_by_date <- function(feed, sport, date = Sys.Date(), season = "current", delay = 5) {
+msf_by_date <- function(feed, sport, date = Sys.Date(), season = "current", delay = 1) {
   stopifnot(length(feed) == 1L, length(sport) == 1L, length(season) == 1L)
   path <- paste0(c(sport, season, feed), collapse = "/")
 
@@ -33,10 +35,22 @@ msf_by_date <- function(feed, sport, date = Sys.Date(), season = "current", dela
   result
 }
 
+#' @describeIn msf_by_date The current season for a given date (or today), along with supported team/player stats.
+#' @export
+current_season <- function(sport, ...) {
+  msf_by_date("current_season.json", sport, ...)
+}
+
 #' @describeIn msf_by_date A list of players, along with their DFS salaries and actual fantasy points.
 #' @export
 daily_dfs <- function(sport, ...) {
   msf_by_date("daily_dfs.json", sport, ...)
+}
+
+#' @describeIn msf_by_date The daily game schedule
+#' @export
+daily_game_schedule <- function(sport, ...) {
+  msf_by_date("daily_game_schedule.json", sport, ...)
 }
 
 #' @describeIn msf_by_date A list of player stats totals for those players who particpated in games on a given day.
@@ -45,10 +59,10 @@ daily_player_stats <- function(sport, ...) {
   msf_by_date("daily_player_stats.json", sport, ...)
 }
 
-#' @describeIn msf_by_date The daily game schedule
+#' @describeIn msf_by_date A list of players, along with details, currently assigned to a team's roster.
 #' @export
-daily_game_schedule <- function(sport, ...) {
-  msf_by_date("daily_game_schedule.json", sport, ...)
+roster_players <- function(sport, ...) {
+  msf_by_date("roster_players.json", sport, ...)
 }
 
 #' @describeIn msf_by_date Scores and status for all games on a given day.
