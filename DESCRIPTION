@@ -13,7 +13,7 @@ Imports:
   jsonlite,
   xml2
 Suggests: 
-  testthat,
+  httptest,
   knitr,
   rmarkdown
 VignetteBuilder: knitr
