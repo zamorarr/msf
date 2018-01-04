@@ -1,4 +1,5 @@
 [![Travis-CI Build Status](https://travis-ci.org/zamorarr/msf.svg?branch=master)](https://travis-ci.org/zamorarr/msf)
+[![Coverage Status](https://img.shields.io/codecov/c/github/zamorarr/msf/master.svg)](https://codecov.io/github/zamorarr/msf?branch=master)
 
 ## msf
 

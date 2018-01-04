@@ -15,7 +15,8 @@ Imports:
   purrr,
   tibble,
   utils
-Suggests: 
+Suggests:
+  covr,
   httptest,
   knitr,
   rmarkdown,
