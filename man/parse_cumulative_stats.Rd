@@ -8,8 +8,6 @@ parse_cumulative_stats(json)
 }
 \arguments{
 \item{json}{content from response}
-
-\item{site}{draftkings or fanduel}
 }
 \description{
 Parse cumulative stats
