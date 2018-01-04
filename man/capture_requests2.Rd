@@ -17,3 +17,4 @@ Helper to build up mock fixtures for testing
 capture_requests2(game_boxscore("nba", "20171027-BRO-NYK"))
 }
 }
+\keyword{internal}

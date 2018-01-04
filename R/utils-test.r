@@ -2,6 +2,7 @@
 #'
 #' Helper to build up mock fixtures for testing
 #' @param expr R expresssion to execute
+#' @keywords internal
 #' @examples
 #' \dontrun{
 #' capture_requests2(game_boxscore("nba", "20171027-BRO-NYK"))
@@ -23,4 +24,14 @@ capture_requests2 <- function(expr) {
 pretty_json <- function(path) {
   json <- jsonlite::read_json(path)
   jsonlite::write_json(json, path, pretty = TRUE, auto_unbox = TRUE)
+}
+
+#' Mock API calls with fake credentials
+#'
+#' @param expr R expression
+#' @param user,password strings
+#' @keywords internal
+with_mock_test <- function(expr, user = "fakeuser", password = "fakepass") {
+    envvars <- c("MYSPORTSFEEDS_USER" = user, "MYSPORTSFEEDS_PASSWORD" = password)
+    withr::with_envvar(envvars, httptest::with_mock_API(expr))
 }
