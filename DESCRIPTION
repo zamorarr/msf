@@ -1,19 +1,23 @@
 Package: msf
-Title: API for mysportsfeeds.com
+Title: API for mysportsfeeds
 Version: 0.0.1
 Authors@R: person("Robert","Zamora", email = "zamora.rr@gmail.com", role = c("aut", "cre"))
-Description: API functions for mysportsfeeds.com
+Description: Provides R interface to API for mysportsfeeds.
 Depends: R (>= 3.4.0)
-License: What license is it under?
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 Imports:
   httr,
   jsonlite,
-  xml2
+  methods,
+  purrr,
+  tibble,
+  utils
 Suggests: 
   httptest,
   knitr,
-  rmarkdown
+  rmarkdown,
+  withr
 VignetteBuilder: knitr
