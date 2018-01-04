@@ -14,6 +14,20 @@ test_that("nba starting lineup parser works", {
     expect_equal(actual$lineup_position[1:3], c("Starter1", "Starter2", "Starter5"))
 })
 
+test_that("mlb starting lineup parser works", {
+  # mlb data
+  resp <- with_mock_test(resp <- game_starting_lineup("mlb", "20171005-BOS-HOU", season = "latest"))
+
+  actual <- parse_starting_lineup(resp$content)
+
+  expect_equal(nrow(actual), 40L)
+  expect_equal(ncol(actual), 4L)
+  expect_equal(actual$player_id[1:3], c("12551", "11061", "11339"))
+  expect_equal(actual$team_id[1:3], rep("113", 3L))
+  expect_equal(actual$game_id[1:3], rep("43316", 3L))
+  expect_equal(actual$lineup_position[1:3], c("BO7", "BO8", "BO5"))
+})
+
 test_that("nhl play by play lineup parser works", {
     # nhl data
     resp <- with_mock_test(game_pbp("nhl", "20161215-FLO-WPJ", season = "2016-2017-regular"))
