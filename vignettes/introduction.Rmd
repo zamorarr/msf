@@ -49,7 +49,9 @@ library(withr)
 # I'm not showing this part because I'm actually mocking the API call. No need to confuse the user.
 #json <- read_msf("../tests/testthat/api.mysportsfeeds.com/v1.1/pull/nba/2017-2018-regular/game_boxscore.json-49e732.json")
 mock_testdir <- function(expr) {
-  with_dir("../tests/testthat", with_mock_API(expr))
+  envvars <- c("MYSPORTSFEEDS_USER" = "fakeuser", "MYSPORTSFEEDS_PASSWORD" = "fakepass")
+  testsdir <- "../tests/testthat"
+  with_dir(testsdir, with_envvar(envvars, with_mock_API(expr)))
 }
 
 resp <- mock_testdir(game_boxscore("nba", "20171017-BOS-CLE", season = "2017-2018-regular"))
