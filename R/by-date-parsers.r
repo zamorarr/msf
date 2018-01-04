@@ -21,9 +21,9 @@ parse_current_season <- function(json) {
   team_stats <- season[["supportedTeamStats"]][[1]]
   team_df <- tibble::as_tibble(transpose_and_simplify(team_stats))
 
-  dplyr::mutate(details,
-                supportedPlayerStats = list(player_df),
-                supportedTeamStats = list(team_df))
+  details$supportedPlayerStats <- list(player_df)
+  details$supportedTeamStats <- list(team_df)
+  details
 }
 
 #' Parse fantasy salaries for today's games
@@ -69,16 +69,13 @@ parse_daily_dfs <- function(json, site = c("draftkings", "fanduel")) {
   # fantasy points
   fpts <- as.double(purrr::map_chr(dfs, "fantasyPoints", .null = NA))
 
-  result <- dplyr::bind_cols(df_players, df_teams)
+  result <- cbind(df_players, df_teams)
   result[c("game_id", "salary", "fpts")] <- list(game_id, salary, fpts)
 
   # tidy data frame
-  result <- tidyr::unite(result, "name", player_firstname, player_lastname, sep = " ")
-  result <- dplyr::select(
-    result,
-    player_id, team_id, game_id, name = name, team = team_abbreviation,
-    position = player_position, salary, fpts)
-
+  result$name <- paste(result$player_firstname, result$player_lastname, sep = " ")
+  result[c("team", "position")] <- result[c("team_abbreviation", "player_position")]
+  result <- result[c("player_id", "team_id", "game_id", "name", "team", "position", "salary", "fpts")]
   result
 }
 
@@ -114,7 +111,7 @@ parse_game_schedule <- function(json, nm) {
   colnames(df_home) <- paste("home", tolower(colnames(df_home)), sep = "_")
 
   result <- tibble::tibble(game_id = game_id, dt = dt, location = location)
-  dplyr::bind_cols(result, df_away, df_home)
+  cbind(result, df_away, df_home)
 }
 
 #' @describeIn parse_game_schedule Parse daily game schedule
@@ -149,7 +146,7 @@ parse_daily_player_stats <- function(json) {
   stats <- purrr::map(playerstats, "stats")
   df_stats <- parse_stats(stats)
 
-  dplyr::bind_cols(df_players, df_teams, df_stats)
+  cbind(df_players, df_teams, df_stats)
 }
 
 
@@ -184,7 +181,7 @@ parse_roster_players <- function(json) {
   df_teams <- tibble::as_tibble(transpose_and_simplify(teams))
   colnames(df_teams) <- paste("team", tolower(colnames(df_teams)), sep = "_")
 
-  dplyr::bind_cols(df_players, df_teams)
+  cbind(df_players, df_teams)
 }
 
 #' Parse scoreboard
@@ -202,7 +199,7 @@ parse_scoreboard <- function(json) {
   game_id <- purrr::map_chr(gamescores, c("game", "ID"))
 
   # unnested data
-  df_misc <- purrr::modify(gamescore, ~ .x[-c(1,8)])
+  df_misc <- purrr::modify(gamescores, ~ .x[-c(1,8)])
   df_misc <- transpose_and_simplify(df_misc)
   df_misc <- tibble::as_tibble(df_misc[-4])
   df_misc <- purrr::modify_at(df_misc, c("isUnplayed", "isInProgress", "isCompleted"), as.logical)
@@ -216,5 +213,5 @@ parse_scoreboard <- function(json) {
   df_inning <- purrr::map(inning_summary, tibble::as_tibble)
 
   result <- tibble::tibble(game_id = game_id, inning_summary = df_inning)
-  dplyr::bind_cols(result, df_misc)
+  cbind(result, df_misc)
 }

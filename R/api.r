@@ -55,6 +55,6 @@ msf_api <- function(path, query = NULL) {
 #' @export
 print.msf_api <- function(x, ...) {
   cat("<MySportsFeeds ", x[["path"]], ">\n", sep = "")
-  str(x[["content"]],2)
+  utils::str(x[["content"]],2)
   invisible(x)
 }

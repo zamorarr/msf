@@ -5,7 +5,9 @@
 #' @param path path to directory
 #' @export
 write_msf <- function(resp, path) {
-  assertive.files::assert_all_are_dirs(path)
+  stopifnot(length(path) == 1L)
+  is_dir <- file.info(path)$isdir
+  stopifnot(is_dir)
 
   if (class(resp) == "msf_api") {
     filename <- paste0(resp$name, ".json")

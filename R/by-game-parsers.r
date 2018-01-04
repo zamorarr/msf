@@ -26,8 +26,10 @@ parse_boxscore <- function(json) {
   df_home$team_id <- home_id
   df_away$team_id <- away_id
 
-  result <- dplyr::bind_rows(df_away, df_home)
-  dplyr::select(result, player_id, team_id, position, dplyr::everything())
+  # combine home and away
+  result <- rbind(df_away, df_home)
+  important_names <- c("player_id", "team_id", "position")
+  result[c(important_names, setdiff(names(result), important_names))]
 }
 
 #' @keywords internal
@@ -46,8 +48,7 @@ parse_team_boxscore <- function(json) {
   positions <- purrr::map_chr(players, "Position")
 
   result <- tibble::tibble(player_id = player_ids, position = positions)
-  dplyr::bind_cols(result, df_stats)
-
+  cbind(result, df_stats)
 }
 
 #' Parse starting lineup for a game
@@ -71,7 +72,10 @@ parse_starting_lineup <- function(json, type = c("actual", "expected")) {
 
   # lineups
   type <- match.arg(type)
-  lineups <- purrr::map_dfr(startinglineup[["teamLineup"]], parse_single_lineup, type)
+  lineups <- purrr::map(startinglineup[["teamLineup"]], parse_single_lineup, type)
+
+  # combine data frames
+  lineups <- do.call(rbind, lineups)
   lineups$game_id <- game_id
 
   lineups[c("player_id", "team_id", "game_id", "lineup_position")]
@@ -130,8 +134,8 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
   } else if (sport == "nfl") {
     quarter <- purrr::map_chr(plays, "quarter")
     time <- purrr::map_chr(plays, "time")
-    event <- purrr::map_chr(plays, ~ tail(names(.x),1))
-    event_data <- purrr::map(plays, tail, 1)
+    event <- purrr::map_chr(plays, ~ utils::tail(names(.x),1))
+    event_data <- purrr::map(plays, utils::tail, 1)
     tibble::tibble(quarter = quarter, time = time, event = event, data = event_data)
   } else if (sport == "mlb") {
     inning <- purrr::map_chr(plays, "inning")
@@ -146,7 +150,8 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
       inning = inning, inning_half = inning_half, batting_team = batting_team,
       atbat_id = atbat_id, data = event_data)
 
-    tidyr::unnest(results, data)
+    #tidyr::unnest(results, data)
+    results
   }
 
 }
@@ -154,12 +159,12 @@ parse_game_pbp <- function(json, sport = c(NA, "nba", "nhl", "nfl", "mlb")) {
 #' Parse mlb events
 #' @param event a nested json event
 #' @keywords internal
-#parse_mlb_event <- function(event) {
-#  event_type <- purrr::map_chr(event, ~ names(head(.x)))
-#  event_data <- purrr::map(event, 1)
-#  play_id <- seq_along(event_type)
-#  tibble::tibble(play_id, event = event_type, data = event_data)
-#}
+parse_mlb_event <- function(event) {
+  event_type <- purrr::map_chr(event, ~ names(head(.x)))
+  event_data <- purrr::map(event, 1)
+  play_id <- seq_along(event_type)
+  tibble::tibble(play_id, event = event_type, data = event_data)
+}
 
 #parse_starting_lineup(resp$content, "actual") %>%
 #  filter(!is.na(player_id)) %>%

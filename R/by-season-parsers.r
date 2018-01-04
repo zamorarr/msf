@@ -29,7 +29,6 @@ parse_active_players <- function(json) {
 #' Parse cumulative stats
 #'
 #' @param json content from response
-#' @param site draftkings or fanduel
 #' @export
 #' @examples
 #' \dontrun{
@@ -40,18 +39,22 @@ parse_cumulative_stats <- function(json) {
   playerstats <- json[["cumulativeplayerstats"]][["playerstatsentry"]]
 
   # player data
-  player_df <- purrr::map_df(playerstats, "player")
+  player_df <- purrr::map(playerstats, "player")
+  player_df <- tibble::as_tibble(transpose_and_simplify(player_df))
 
   # team data
-  team_df <- purrr::map_df(playerstats, "team")
-  team_df <- dplyr::rename(team_df, "TeamID" = "ID")
+  team_df <- purrr::map(playerstats, "team")
+  team_df <- tibble::as_tibble(transpose_and_simplify(team_df))
+  team_df$TeamID = team_df$ID
+  team_df$ID <- NULL
 
   # stats
   stats <- purrr::map(playerstats, "stats")
-  stats_df <- purrr::map_df(stats, ~ purrr::map(.x, "#text"))
+  stats_df <- purrr::map(stats, ~ purrr::map(.x, "#text"))
+  stats_df <- tibble::as_tibble(transpose_and_simplify(stats_df))
   stats_df[] <- purrr::map(stats_df, as.double)
 
-  df <- dplyr::bind_cols(player_df, team_df, stats_df)
+  df <- cbind(player_df, team_df, stats_df)
   colnames(df) <- tolower(colnames(df))
 
   df
@@ -70,17 +73,20 @@ parse_player_injuries <- function(json) {
   playerinjuries <- json[["playerinjuries"]][["playerentry"]]
 
   # player data
-  player_df <- purrr::map_df(playerinjuries, "player")
-  #print(player_df)
+  players <- purrr::map(playerinjuries, "player")
+  player_df <- tibble::as_tibble(transpose_and_simplify(players))
 
   # team data
-  team_df <- purrr::map_df(playerinjuries, "team")
+  teams <- purrr::map(playerinjuries, "team")
+  team_df <- tibble::as_tibble(transpose_and_simplify(teams))
 
   # injury
-  injury <- purrr::map_chr(playerinjuries, "injury")
-  injury_split <- stringr::str_match(injury, "(.*) \\((.*)\\)")
+  injuries <- purrr::map_chr(playerinjuries, "injury")
+  injury_status <- str_match(injuries, "(.*) \\((.*)\\)")
+  injury <- injury_status[[2]]
+  status <- injury_status[[3]]
 
   # return data frame
   tibble::tibble(id = player_df[["ID"]], team_id = team_df[["ID"]],
-                 injury = injury_split[,2], status = injury_split[,3])
+                 injury = injury, status = status)
 }
