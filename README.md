@@ -1,3 +1,5 @@
+[![Travis-CI Build Status](https://travis-ci.org/zamorarr/msf.svg?branch=master)](https://travis-ci.org/zamorarr/msf)
+
 ## msf
 
 msf is an R wrapper for the [MySportsFeeds API](https://www.mysportsfeeds.com/).
