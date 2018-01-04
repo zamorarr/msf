@@ -28,3 +28,17 @@ test_that("player cumulative stats parser works", {
     expect_equal(actual$fg2ptatt[1:3], c(40, 39, 287))
     expect_equal(actual$ast[1:3], c(13, 19, 28))
 })
+
+test_that("latest updates parser works", {
+  # mlb data
+  resp <- with_mock_test(latest_updates("mlb", season = "latest"))
+
+  actual <- parse_latest_updates(resp$content)
+
+  expect_equal(nrow(actual), 336L)
+  expect_equal(ncol(actual), 4L)
+  expect_equal(actual$feed[1:3], rep("daily_game_schedule", 3L))
+  expect_equal(actual$feed_type[1:3], rep("date", 3L))
+  expect_equal(actual$feed_for[1:3], c("2017-10-05", "2017-10-05", "2017-10-06"))
+  expect_equal(as.integer(table(actual$feed_type)), c(183L, 114L, 39L))
+})

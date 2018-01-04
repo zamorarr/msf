@@ -90,3 +90,102 @@ parse_player_injuries <- function(json) {
   tibble::tibble(id = player_df[["ID"]], team_id = team_df[["ID"]],
                  injury = injury, status = status)
 }
+
+#' Parse latest updates
+#'
+#' Parse latest updates into a tidy data frame.
+#' This function is pretty slow right now. Needs to be sped up in the future.
+#' @param json content from response
+#' @export
+#' @examples
+#' \dontrun{
+#' resp <- latest_updates("nba")
+#' updates <- parse_latest_updates(resp$content)
+#' }
+parse_latest_updates <- function(json) {
+  feedentries <- json[["latestupdates"]][["feedentry"]]
+
+  # feeds
+  feeds <- purrr::map(feedentries, "feed")
+  feed_abbr <- purrr::map_chr(feeds, "Abbreviation")
+
+  # separate types (forDate, forGame, None)
+  feeds_by_date <- purrr::keep(feedentries, ~ "forDate" %in% names(.x))
+  feeds_by_game <- purrr::keep(feedentries, ~ "forGame" %in% names(.x))
+  feeds_by_other <- purrr::keep(feedentries, ~ !any(c("forDate", "forGame") %in% names(.x)))
+
+  # last updated
+  df_date <- parse_latest_updates_by_date(feeds_by_date)
+  df_game <- parse_latest_updates_by_game(feeds_by_game)
+  df_other <- parse_latest_updates_by_other(feeds_by_other)
+
+  rbind(df_date, df_game, df_other)
+}
+
+#' @keywords internal
+parse_latest_updates_by_date <- function(json) {
+
+  # get fields
+  feed <- tolower(purrr::map_chr(json, c("feed", "Abbreviation"), .default = NA_character_))
+  forDate <- purrr::map(json, "forDate")
+
+  # parse fields
+  res <- purrr::map2(feed, forDate, parse_fordate)
+
+  # combine results
+  df <- do.call(rbind, res)
+  df[!is.na(df$last_updated),]
+}
+
+#' @keywords internal
+parse_fordate <- function(feed, forDate) {
+  nm <- names(forDate)
+
+  # if forDate field is just 2 named elements then its a single entry
+  if (!is.null(nm) && identical(sort(nm), c("forDate", "lastUpdatedOn"))) { # not nested
+    last_updated <- forDate$lastUpdatedOn
+    date <- forDate$forDate
+  } else { # nested forDates
+    last_updated <- purrr::map_chr(forDate, "lastUpdatedOn", .default = NA_character_)
+    date <- purrr::map_chr(forDate, "forDate", .default = NA_character_)
+  }
+
+  tibble::tibble(feed = feed, last_updated = last_updated, feed_type = "date", feed_for = date)
+}
+
+#' @keywords internal
+parse_latest_updates_by_game <- function(json) {
+  # get fields
+  feed <- tolower(purrr::map_chr(json, c("feed", "Abbreviation"), .default = NA_character_))
+  forGame <- purrr::map(json, "forGame")
+
+  # parse fields
+  res <- purrr::map2(feed, forGame, parse_forgame)
+
+  # combine results
+  do.call(rbind, res)
+}
+
+#' @keywords internal
+parse_forgame <- function(feed, forGame) {
+  nm <- names(forGame)
+
+  # if forGame field is just 2 named elements then its a single entry
+  if (!is.null(nm) && identical(sort(nm), c("forGame", "lastUpdatedOn"))) { # not nested
+    last_updated <- forGame$lastUpdatedOn
+    game <- forGame$game
+  } else { # nested forDates
+    last_updated <- purrr::map_chr(forGame, "lastUpdatedOn", .default = NA_character_)
+    game <- purrr::map_chr(forGame, ~ .x[["game"]][[1]][["ID"]], .default = NA_character_)
+  }
+
+  tibble::tibble(feed = feed, last_updated = last_updated, feed_type = "game", feed_for = game)
+}
+
+#' @keywords internal
+parse_latest_updates_by_other <- function(json) {
+  feed <- tolower(purrr::map_chr(json, c("feed", "Abbreviation"), .default = NA_character_))
+  last_updated <- purrr::map_chr(json, "lastUpdatedOn", .default = NA_character_)
+
+  tibble::tibble(feed = feed, last_updated = last_updated, feed_type = "other", feed_for = NA)
+}
