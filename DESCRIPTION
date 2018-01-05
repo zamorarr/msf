@@ -3,7 +3,7 @@ Title: API for mysportsfeeds
 Version: 0.0.1
 Authors@R: person("Robert","Zamora", email = "zamora.rr@gmail.com", role = c("aut", "cre"))
 Description: Provides R interface to API for mysportsfeeds.
-Depends: R (>= 3.4.3)
+Depends: R (>= 3.4.2)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
