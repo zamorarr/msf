@@ -189,3 +189,10 @@ parse_latest_updates_by_other <- function(json) {
 
   tibble::tibble(feed = feed, last_updated = last_updated, feed_type = "other", feed_for = NA)
 }
+
+#' @describeIn parse_game_schedule Parse full game schedule
+#' @export
+parse_full_game_schedule <- function(json) {
+  parse_game_schedule(json, "fullgameschedule")
+}
+
