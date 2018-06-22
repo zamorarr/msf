@@ -12,6 +12,7 @@ parse_active_players <- function(json) {
 
   # players
   id <- purrr::map_chr(players, c("player", "ID"))
+  external_id <- purrr::map_chr(players, c("player", "externalMapping", "ID"), .default = NA_character_)
   position <- purrr::map_chr(players, c("player", "Position"))
   fname <- purrr::map_chr(players, c("player", "FirstName"))
   lname <- purrr::map_chr(players, c("player", "LastName"))
@@ -22,7 +23,8 @@ parse_active_players <- function(json) {
   team_id <- purrr::map_chr(players, c("team", "ID"), .null = NA)
   team <- purrr::map_chr(players, c("team", "Abbreviation"), .null = NA)
 
-  tibble::tibble(id = id, team_id = team_id, fname = fname, lname = lname,
+  tibble::tibble(id = id, external_id = external_id, team_id = team_id,
+                 fname = fname, lname = lname,
                  team = team, position = position, is_rookie = is_rookie)
 }
 
